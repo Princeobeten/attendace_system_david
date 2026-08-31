@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+
+  --color-ink: #0f172a;
+  --color-line: #e2e8f0;
+  --color-canvas: #f6f7fb;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+ * Shared building blocks for the admin screens. Tailwind v4 cannot `@apply`
+ * one custom component class inside another, so the button base is repeated
+ * rather than composed.
+ */
+@utility card {
+  @apply rounded-xl border border-line bg-white shadow-sm;
+}
+
+@utility label {
+  @apply mb-1.5 block text-sm font-medium text-slate-700;
+}
+
+@utility input {
+  @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm
+         text-slate-900 outline-none transition
+         placeholder:text-slate-400
+         focus:border-brand-500 focus:ring-2 focus:ring-brand-100
+         disabled:bg-slate-50 disabled:text-slate-500;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
+         text-sm font-semibold transition
+         disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@utility btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
+         text-sm font-semibold transition
+         disabled:cursor-not-allowed disabled:opacity-50
+         bg-brand-600 text-white hover:bg-brand-700 active:bg-brand-800;
+}
+
+@utility btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
+         text-sm font-semibold transition
+         disabled:cursor-not-allowed disabled:opacity-50
+         border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+}
+
+@utility btn-danger {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2
+         text-sm font-semibold transition
+         disabled:cursor-not-allowed disabled:opacity-50
+         border border-red-200 bg-red-50 text-red-700 hover:bg-red-100;
+}
+
+@utility th {
+  @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500;
+}
+
+@utility td {
+  @apply px-4 py-3 text-sm text-slate-700;
+}
+
+/* The webcam preview is mirrored so it behaves like a mirror to the subject. */
+@utility mirror {
+  transform: scaleX(-1);
 }
