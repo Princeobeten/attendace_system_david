@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FaceTrack – User Guide</title>
+<style>
+  /* ── Reset & base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 11pt; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    color: #1e293b;
+    background: #fff;
+    line-height: 1.65;
+  }
+
+  /* ── Page layout ── */
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    padding: 18mm 18mm 18mm 20mm;
+  }
+
+  /* ── Cover Page ── */
+  .cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    text-align: center;
+    background: linear-gradient(145deg, #1e3a5f 0%, #1d4ed8 60%, #3b82f6 100%);
+    color: #fff;
+    padding: 40px;
+    page-break-after: always;
+  }
+  .cover .logo-box {
+    width: 72px; height: 72px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 18px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin-bottom: 24px;
+    border: 2px solid rgba(255,255,255,0.3);
+  }
+  .cover h1 { font-size: 38pt; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+  .cover .sub { font-size: 15pt; opacity: 0.85; margin-bottom: 32px; }
+  .cover .divider { width: 60px; height: 3px; background: rgba(255,255,255,0.5); border-radius: 2px; margin: 0 auto 32px; }
+  .cover .meta { font-size: 10pt; opacity: 0.7; line-height: 2; }
+  .cover .url-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.4);
+    border-radius: 24px;
+    padding: 6px 20px;
+    font-size: 10pt;
+    margin-top: 20px;
+    letter-spacing: 0.3px;
+  }
+  .cover .version-tag {
+    position: absolute;
+    top: 20px; right: 24px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 8pt;
+  }
+
+  /* ── TOC page ── */
+  .toc-page { page-break-after: always; }
+  .toc-page h2 { font-size: 18pt; color: #1d4ed8; margin-bottom: 20px; border-bottom: 2px solid #dbeafe; padding-bottom: 10px; }
+  .toc { list-style: none; }
+  .toc li { display: flex; align-items: baseline; gap: 4px; margin: 5px 0; font-size: 10.5pt; }
+  .toc li .toc-num { color: #1d4ed8; font-weight: 700; min-width: 28px; }
+  .toc li .toc-title { flex: 1; }
+  .toc li .toc-dots { flex: 1; border-bottom: 1px dotted #cbd5e1; margin: 0 6px 3px; }
+  .toc .toc-sub { padding-left: 28px; font-size: 9.5pt; color: #475569; }
+  .toc .toc-sub .toc-num { min-width: 32px; }
+
+  /* ── Section headings ── */
+  .section { page-break-before: always; padding-top: 4px; }
+  .section:first-of-type { page-break-before: avoid; }
+  .section-header {
+    background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+    color: #fff;
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-header .sec-num {
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13pt; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .section-header h2 { font-size: 15pt; font-weight: 700; }
+
+  h3 { font-size: 12pt; color: #1d4ed8; margin: 20px 0 10px; font-weight: 700; border-left: 3px solid #3b82f6; padding-left: 10px; }
+  h4 { font-size: 10.5pt; color: #334155; margin: 14px 0 6px; font-weight: 700; }
+
+  p { margin-bottom: 9px; }
+
+  /* ── Credential boxes ── */
+  .cred-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-left: 4px solid #1d4ed8;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 14px 0;
+  }
+  .cred-box .cred-title {
+    font-size: 9pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #1d4ed8;
+    margin-bottom: 10px;
+  }
+  .cred-table { width: 100%; border-collapse: collapse; font-size: 10pt; }
+  .cred-table th { text-align: left; padding: 5px 10px; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.4px; color: #64748b; border-bottom: 1px solid #bfdbfe; }
+  .cred-table td { padding: 7px 10px; border-bottom: 1px solid #dbeafe; }
+  .cred-table tr:last-child td { border-bottom: none; }
+  .cred-table .mono { font-family: 'Courier New', monospace; font-size: 10pt; }
+  .badge-admin { background: #dbeafe; color: #1d4ed8; border-radius: 4px; padding: 2px 7px; font-size: 8pt; font-weight: 700; }
+  .badge-lect { background: #e2e8f0; color: #475569; border-radius: 4px; padding: 2px 7px; font-size: 8pt; font-weight: 700; }
+
+  /* ── Warning / info / tip boxes ── */
+  .note { border-radius: 7px; padding: 12px 14px; margin: 12px 0; font-size: 9.5pt; }
+  .note-info { background: #eff6ff; border-left: 4px solid #3b82f6; }
+  .note-warn { background: #fffbeb; border-left: 4px solid #f59e0b; }
+  .note-danger { background: #fef2f2; border-left: 4px solid #ef4444; }
+  .note-success { background: #f0fdf4; border-left: 4px solid #22c55e; }
+  .note strong { display: block; margin-bottom: 4px; }
+
+  /* ── Step-by-step ── */
+  .steps { counter-reset: step; list-style: none; margin: 10px 0 14px; }
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+  .steps li::before {
+    content: counter(step);
+    min-width: 24px; height: 24px;
+    background: #1d4ed8;
+    color: #fff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9pt; font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .steps li .step-body { flex: 1; }
+  .steps li .step-body strong { display: block; font-size: 10pt; margin-bottom: 2px; }
+
+  /* ── Use-case flows ── */
+  .flow {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 12px 0;
+  }
+  .flow h4 { margin: 0 0 8px; color: #0f172a; border: none; padding: 0; font-size: 10.5pt; }
+  .flow-arrow { color: #94a3b8; margin: 0 6px; }
+
+  /* ── Nav item display ── */
+  .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .nav-card {
+    background: #f1f5f9;
+    border-radius: 7px;
+    padding: 10px 12px;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .nav-card .icon { font-size: 18px; flex-shrink: 0; }
+  .nav-card .nav-label { font-weight: 700; font-size: 10pt; }
+  .nav-card .nav-desc { font-size: 8.5pt; color: #64748b; margin-top: 2px; }
+  .nav-card.admin-only { border: 1px dashed #1d4ed8; background: #eff6ff; }
+
+  /* ── Status badges ── */
+  .status-green { background: #dcfce7; color: #166534; border-radius: 4px; padding: 1px 7px; font-size: 8.5pt; font-weight: 700; }
+  .status-amber { background: #fef9c3; color: #92400e; border-radius: 4px; padding: 1px 7px; font-size: 8.5pt; font-weight: 700; }
+  .status-red { background: #fee2e2; color: #991b1b; border-radius: 4px; padding: 1px 7px; font-size: 8.5pt; font-weight: 700; }
+  .status-blue { background: #dbeafe; color: #1e3a8a; border-radius: 4px; padding: 1px 7px; font-size: 8.5pt; font-weight: 700; }
+  .status-slate { background: #f1f5f9; color: #475569; border-radius: 4px; padding: 1px 7px; font-size: 8.5pt; font-weight: 700; }
+
+  /* ── Table ── */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 12px 0; }
+  .data-table th { background: #f1f5f9; color: #475569; text-align: left; padding: 7px 10px; font-size: 8.5pt; text-transform: uppercase; letter-spacing: 0.4px; border-bottom: 2px solid #e2e8f0; }
+  .data-table td { padding: 7px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+  .data-table tr:last-child td { border-bottom: none; }
+
+  /* ── Inline code ── */
+  code { background: #f1f5f9; border-radius: 3px; padding: 1px 5px; font-family: 'Courier New', monospace; font-size: 9pt; color: #e11d48; }
+
+  /* ── Dividers ── */
+  hr { border: none; border-top: 1px solid #e2e8f0; margin: 18px 0; }
+
+  /* ── Footer ── */
+  .footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 8pt; color: #94a3b8; display: flex; justify-content: space-between; }
+
+  /* ── Print ── */
+  @media print {
+    html { font-size: 10pt; }
+    .page { padding: 12mm 14mm 12mm 16mm; width: 100%; }
+    .section { page-break-before: always; }
+    .cover { page-break-after: always; min-height: 100vh; }
+    a { color: inherit; text-decoration: none; }
+  }
+
+  /* ── Role pill ── */
+  .role-both { display: inline-block; background: #f0fdf4; color: #166534; border-radius: 12px; padding: 1px 9px; font-size: 8pt; font-weight: 600; border: 1px solid #bbf7d0; }
+  .role-admin { display: inline-block; background: #eff6ff; color: #1d4ed8; border-radius: 12px; padding: 1px 9px; font-size: 8pt; font-weight: 600; border: 1px solid #bfdbfe; }
+  .role-lect { display: inline-block; background: #faf5ff; color: #7e22ce; border-radius: 12px; padding: 1px 9px; font-size: 8pt; font-weight: 600; border: 1px solid #e9d5ff; }
+
+  ul.bullet-list { padding-left: 20px; margin: 8px 0; }
+  ul.bullet-list li { margin-bottom: 4px; font-size: 10pt; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  .highlight-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 8px 0;
+  }
+  .highlight-card .hc-title { font-weight: 700; font-size: 10pt; margin-bottom: 5px; color: #0f172a; }
+  .highlight-card .hc-body { font-size: 9.5pt; color: #475569; }
+
+  .legend-row { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 9pt; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+  .dot-green { background: #22c55e; }
+  .dot-blue { background: #3b82f6; }
+  .dot-red { background: #ef4444; }
+
+  .url-link { color: #1d4ed8; text-decoration: underline; word-break: break-all; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     COVER PAGE
+═══════════════════════════════════════════════ -->
+<div class="cover">
+  <div class="logo-box">◎</div>
+  <h1>FaceTrack</h1>
+  <div class="sub">Face Recognition Attendance System</div>
+  <div class="divider"></div>
+  <div class="meta">
+    Complete User Guide &amp; Platform Manual<br/>
+    Step-by-step instructions for all user roles<br/>
+    Version 1.0 &nbsp;·&nbsp; 2026
+  </div>
+  <div class="url-badge">🌐 &nbsp; https://attendace-system-david.vercel.app/</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     TABLE OF CONTENTS
+═══════════════════════════════════════════════ -->
+<div class="page toc-page">
+  <h2>Table of Contents</h2>
+  <ul class="toc">
+    <li><span class="toc-num">1.</span><span class="toc-title">Platform Overview</span><span class="toc-dots"></span></li>
+    <li><span class="toc-num">2.</span><span class="toc-title">Getting Started — Login &amp; Credentials</span><span class="toc-dots"></span></li>
+    <li><span class="toc-num">3.</span><span class="toc-title">Dashboard</span><span class="toc-dots"></span></li>
+    <li><span class="toc-num">4.</span><span class="toc-title">Students Module</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">4.1</span><span class="toc-title">Viewing the Student List</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">4.2</span><span class="toc-title">Registering a New Student &amp; Face Enrolment</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">4.3</span><span class="toc-title">Viewing a Student Profile</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">4.4</span><span class="toc-title">Re-enrolling a Student's Face</span><span class="toc-dots"></span></li>
+    <li><span class="toc-num">5.</span><span class="toc-title">Courses Module</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">5.1</span><span class="toc-title">Creating a Course</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">5.2</span><span class="toc-title">Managing Students on a Course</span><span class="toc-dots"></span></li>
+    <li><span class="toc-num">6.</span><span class="toc-title">Lecture Sessions</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">6.1</span><span class="toc-title">Starting a Session</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">6.2</span><span class="toc-title">Live Face-Recognition Capture Screen</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">6.3</span><span class="toc-title">Manual Attendance Fallback</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">6.4</span><span class="toc-title">Closing a Session</span><span class="toc-dots"></span></li>
+    <li class="toc-sub"><span class="toc-num">6.5</span><span class="toc-title">Viewing &amp; Correcting the Register</span><span class="toc-dots"></span></li>
+    <li><span class="toc-num">7.</span><span class="toc-title">Attendance Reports</span><span class="toc-dots"></span></li>
+    <li><span class="toc-num">8.</span><span class="toc-title">Staff Accounts (Admin only)</span><span class="toc-dots"></span></li>
+    <li><span class="toc-num">9.</span><span class="toc-title">User Flows by Role</span><span class="toc-dots"></span></li>
+    <li><span class="toc-num">10.</span><span class="toc-title">Tips, Troubleshooting &amp; Limitations</span><span class="toc-dots"></span></li>
+  </ul>
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>User Guide v1.0</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 1 — OVERVIEW
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">1</div>
+    <h2>Platform Overview</h2>
+  </div>
+
+  <p><strong>FaceTrack</strong> is a web-based attendance management system that uses <strong>face recognition</strong> to identify students during lectures. Instead of calling a roll, a lecturer simply points a webcam at the class and FaceTrack marks each face it recognises within seconds — with no queuing, no sign-in sheet, and no proxy attendance.</p>
+
+  <div class="note note-info">
+    <strong>🌐 Live Platform</strong>
+    Access the system at: <a class="url-link" href="https://attendace-system-david.vercel.app/">https://attendace-system-david.vercel.app/</a>
+  </div>
+
+  <h3>How It Works</h3>
+  <div class="three-col">
+    <div class="highlight-card">
+      <div class="hc-title">🎓 Enrol</div>
+      <div class="hc-body">An administrator registers each student once, capturing 3 face samples with a webcam. The system stores 128-point face vectors (not photos) for privacy.</div>
+    </div>
+    <div class="highlight-card">
+      <div class="hc-title">📸 Capture</div>
+      <div class="hc-body">During a lecture, the lecturer opens the live capture screen. The camera scans the room every ~0.9 seconds, recognising and marking faces automatically.</div>
+    </div>
+    <div class="highlight-card">
+      <div class="hc-title">📊 Report</div>
+      <div class="hc-body">After sessions, the system computes each student's attendance percentage and flags who is below the required threshold for exam eligibility.</div>
+    </div>
+  </div>
+
+  <h3>User Roles</h3>
+  <table class="data-table">
+    <thead>
+      <tr><th>Role</th><th>Who they are</th><th>What they can do</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="badge-admin">Admin</span></td>
+        <td>Department officer / Registrar</td>
+        <td>Full access: manage students, courses, sessions, staff accounts, reports</td>
+      </tr>
+      <tr>
+        <td><span class="badge-lect">Lecturer</span></td>
+        <td>Course lecturer</td>
+        <td>Start sessions, capture attendance on assigned courses, view reports. Cannot create students or manage staff.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note note-warn">
+    <strong>⚠️ Important:</strong> Students do <em>not</em> have login accounts. They are identified purely by face recognition during an active session. Students can only be added by an Admin.
+  </div>
+
+  <h3>Navigation Overview</h3>
+  <div class="nav-grid">
+    <div class="nav-card">
+      <span class="icon">▤</span>
+      <div>
+        <div class="nav-label">Dashboard</div>
+        <div class="nav-desc">Stats overview, open sessions, recent records</div>
+      </div>
+    </div>
+    <div class="nav-card">
+      <span class="icon">👥</span>
+      <div>
+        <div class="nav-label">Students</div>
+        <div class="nav-desc">Student list, registration, face enrolment, profiles</div>
+      </div>
+    </div>
+    <div class="nav-card">
+      <span class="icon">📚</span>
+      <div>
+        <div class="nav-label">Courses</div>
+        <div class="nav-desc">Course management and class lists</div>
+      </div>
+    </div>
+    <div class="nav-card">
+      <span class="icon">🎥</span>
+      <div>
+        <div class="nav-label">Lecture Sessions</div>
+        <div class="nav-desc">Start, run, and close lecture attendance sessions</div>
+      </div>
+    </div>
+    <div class="nav-card">
+      <span class="icon">📊</span>
+      <div>
+        <div class="nav-label">Attendance Report</div>
+        <div class="nav-desc">Per-course registers, percentages, CSV export</div>
+      </div>
+    </div>
+    <div class="nav-card admin-only">
+      <span class="icon">🔑</span>
+      <div>
+        <div class="nav-label">Staff Accounts <span class="role-admin">Admin only</span></div>
+        <div class="nav-desc">Create and manage lecturer/admin accounts</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 1 — Overview</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 2 — LOGIN & CREDENTIALS
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">2</div>
+    <h2>Getting Started — Login &amp; Credentials</h2>
+  </div>
+
+  <h3>Accessing the Platform</h3>
+  <p>Open a web browser (Chrome, Edge, or Safari recommended) and navigate to:</p>
+  <div class="note note-info">
+    <strong>🔗 Live URL</strong>
+    <a class="url-link" href="https://attendace-system-david.vercel.app/">https://attendace-system-david.vercel.app/</a>
+  </div>
+  <p>You will be directed to the <strong>Login page</strong> if you are not already signed in.</p>
+
+  <h3>Login Credentials</h3>
+  <p>The system ships with two default staff accounts. Use these to sign in:</p>
+
+  <div class="cred-box">
+    <div class="cred-title">🔐 Default Login Accounts</div>
+    <table class="cred-table">
+      <thead>
+        <tr>
+          <th>Role</th>
+          <th>Email Address</th>
+          <th>Password</th>
+          <th>Access Level</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge-admin">Administrator</span></td>
+          <td class="mono">admin@example.edu</td>
+          <td class="mono">admin1234</td>
+          <td>Full system access</td>
+        </tr>
+        <tr>
+          <td><span class="badge-lect">Lecturer</span></td>
+          <td class="mono">lecturer@example.edu</td>
+          <td class="mono">lecturer1234</td>
+          <td>Courses &amp; sessions only</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="note note-warn">
+    <strong>⚠️ Security Notice:</strong> These are demo credentials. If you create real staff accounts (Section 8), ensure you use a strong password (minimum 6 characters). The system does not enforce password complexity, so use good judgment.
+  </div>
+
+  <h3>How to Log In</h3>
+  <ol class="steps">
+    <li>
+      <div class="step-body">
+        <strong>Open the login page</strong>
+        Visit <code>https://attendace-system-david.vercel.app/</code>. You will see a two-panel screen: a dark blue branding panel on the left and a login form on the right.
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Enter your email address</strong>
+        Type your staff email in the "Email address" field. For the admin account: <code>admin@example.edu</code>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Enter your password</strong>
+        Type your password. For the admin account: <code>admin1234</code>
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Click "Sign in"</strong>
+        You will be redirected to the <strong>Dashboard</strong> automatically.
+      </div>
+    </li>
+  </ol>
+
+  <h3>Session Duration</h3>
+  <p>Your login session lasts <strong>8 hours</strong> from the time you sign in. After that, you will be automatically signed out and redirected to the login page. Simply sign in again to continue.</p>
+
+  <h3>Signing Out</h3>
+  <p>At the bottom of the sidebar (visible on all pages), you will see your name, role, and email. Click the <strong>"Sign out"</strong> button to log out securely.</p>
+
+  <div class="note note-success">
+    <strong>✅ After Login:</strong> The sidebar on the left shows only the sections available to your role. Admins see all 6 items including "Staff accounts". Lecturers see 5 items (no Staff accounts link).
+  </div>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 2 — Login</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 3 — DASHBOARD
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">3</div>
+    <h2>Dashboard</h2>
+  </div>
+
+  <p>The Dashboard is the first screen you see after logging in. It gives you a quick overview of what is happening across the system right now.</p>
+
+  <h3>Dashboard Cards (Top Row)</h3>
+  <table class="data-table">
+    <thead><tr><th>Card</th><th>What it shows</th><th>Indicator</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Registered students</strong></td>
+        <td>Total number of students in the system. Shows how many are missing face templates.</td>
+        <td>Amber if any students lack faces; green if all enrolled</td>
+      </tr>
+      <tr>
+        <td><strong>Courses</strong></td>
+        <td>Number of courses visible to you (all for admin, assigned only for lecturers)</td>
+        <td>Blue</td>
+      </tr>
+      <tr>
+        <td><strong>Open sessions</strong></td>
+        <td>How many lecture sessions are currently live (attendance can be taken)</td>
+        <td>Green if sessions are running; grey if none</td>
+      </tr>
+      <tr>
+        <td><strong>Marked today</strong></td>
+        <td>Total attendance records created today. Split into face-recognised vs manually marked.</td>
+        <td>Grey</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Open Lecture Sessions Panel</h3>
+  <p>Shows any sessions currently in progress. Each row displays the course code, session title, start time, and venue. Click <strong>"Open camera"</strong> to go directly to the live capture screen for that session.</p>
+
+  <div class="note note-info">
+    <strong>💡 Quick access:</strong> If no sessions are running, a "Start a session" button takes you straight to the Sessions page to begin one.
+  </div>
+
+  <h3>Recent Attendance Panel</h3>
+  <p>Displays the 8 most recent attendance records across all courses. Each entry shows the student's name, course code, time marked, and whether they were marked <span class="status-green">present</span> or <span class="status-amber">late</span>.</p>
+
+  <h3>Typical Use: Starting Your Day</h3>
+  <div class="flow">
+    <h4>📋 Morning Workflow</h4>
+    <ol class="steps" style="margin:0">
+      <li><div class="step-body">Log in and land on the Dashboard</div></li>
+      <li><div class="step-body">Check the "Open sessions" tile — if it shows a number, someone has already started a session</div></li>
+      <li><div class="step-body">If you need to take attendance: click "Start a session" or navigate to Lecture Sessions</div></li>
+      <li><div class="step-body">If you need to check on a student: click their name in Recent Attendance, or go to Students</div></li>
+    </ol>
+  </div>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 3 — Dashboard</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 4 — STUDENTS
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">4</div>
+    <h2>Students Module</h2>
+  </div>
+
+  <h3>4.1 — Viewing the Student List</h3>
+  <p>Click <strong>Students</strong> in the sidebar. You will see a table of all registered students, showing:</p>
+  <ul class="bullet-list">
+    <li>Student name (with a small avatar thumbnail if face has been enrolled)</li>
+    <li>Matriculation number</li>
+    <li>Department</li>
+    <li>Level (100–500)</li>
+    <li>Face template status — <span class="status-green">N samples</span> (enrolled) or <span class="status-red">Not enrolled</span></li>
+  </ul>
+
+  <p>Use the <strong>Search box</strong> at the top to filter by name, matric number, or department.</p>
+
+  <div class="note note-warn">
+    <strong>⚠️ Important:</strong> Students marked "Not enrolled" cannot be recognised by the camera. They must have their face enrolled (Section 4.2) before attendance can be taken automatically.
+  </div>
+
+  <h3>4.2 — Registering a New Student &amp; Face Enrolment</h3>
+  <p><span class="role-admin">Admin only</span>&nbsp; — The "+ Register student" button is only visible to admins.</p>
+
+  <ol class="steps">
+    <li>
+      <div class="step-body">
+        <strong>Click "+ Register student"</strong> (top-right of Students page)
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Fill in the Student Details form (left panel)</strong><br/>
+        Required: <code>Matriculation number</code> (e.g. <code>CSC/2021/034</code>) and <code>Full name</code>.<br/>
+        Optional: Email, Department, Level.
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Open the Face Enrolment panel (right panel)</strong><br/>
+        Click <strong>"Turn on camera"</strong>. Your browser will ask for camera permission — allow it.
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Capture 3 face samples</strong><br/>
+        The panel will prompt 3 poses one at a time:<br/>
+        &nbsp;&nbsp;① <em>"Look straight at the camera"</em><br/>
+        &nbsp;&nbsp;② <em>"Turn your head slightly to the left"</em><br/>
+        &nbsp;&nbsp;③ <em>"Turn your head slightly to the right"</em><br/>
+        Click <strong>"Capture sample"</strong> for each pose. A green box will flash on the detected face. Each captured thumbnail appears below.
+      </div>
+    </li>
+    <li>
+      <div class="step-body">
+        <strong>Click "Save student"</strong><br/>
+        The student is saved. You are returned to the Students list.
+      </div>
+    </li>
+  </ol>
+
+  <div class="note note-info">
+    <strong>💡 Camera tips for best results:</strong>
+    <ul class="bullet-list" style="margin-top:6px">
+      <li>Ensure the room is well-lit. Natural or overhead light works best.</li>
+      <li>The student should be 50–100 cm from the camera.</li>
+      <li>Remove hats, sunglasses, or anything covering the face.</li>
+      <li>The counter shows <code>0/3</code>, <code>1/3</code>, <code>2/3</code>, <code>3/3</code> as you progress.</li>
+      <li>If capture fails, check the error message (e.g. "No face detected").</li>
+      <li>Use "Clear samples" to restart if the captures look poor.</li>
+    </ul>
+  </div>
+
+  <h3>4.3 — Viewing a Student Profile</h3>
+  <p>Click any student's name to open their profile. The profile shows:</p>
+  <ul class="bullet-list">
+    <li><strong>Personal details</strong> — matric number, name, email, department, level</li>
+    <li><strong>Enrolled courses</strong> — a list of courses the student is registered on</li>
+    <li><strong>Attendance history</strong> — the last 50 attendance records: date, course, status, method (face/manual), match distance</li>
+  </ul>
+
+  <h3>4.4 — Re-enrolling a Student's Face</h3>
+  <p>If a student's face samples are poor (bad lighting, significant appearance change), an admin can re-enrol them from the student profile page.</p>
+  <ol class="steps">
+    <li><div class="step-body">Open the student's profile page</div></li>
+    <li><div class="step-body">Click <strong>"Re-enrol face"</strong></div></li>
+    <li><div class="step-body">Capture 3 new samples following the same process as initial enrolment</div></li>
+    <li><div class="step-body">Save — the old templates are replaced</div></li>
+  </ol>
+
+  <div class="note note-danger">
+    <strong>⚠️ Deleting a Student:</strong> The delete button on the student profile is permanent. It removes the student record, all attendance records, and removes them from all courses. This cannot be undone.
+  </div>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 4 — Students</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 5 — COURSES
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">5</div>
+    <h2>Courses Module</h2>
+  </div>
+
+  <p>Click <strong>Courses</strong> in the sidebar. Admins see all courses; lecturers see only the courses assigned to them.</p>
+
+  <p>Each course card shows:</p>
+  <ul class="bullet-list">
+    <li>Course code (e.g. <code>CSC 401</code>) and title</li>
+    <li>Number of registered students</li>
+    <li>Level and credit units</li>
+    <li>Required attendance percentage (default 75%)</li>
+    <li>Assigned lecturer</li>
+  </ul>
+
+  <h3>5.1 — Creating a Course <span class="role-admin">Admin only</span></h3>
+  <ol class="steps">
+    <li><div class="step-body"><strong>Click "+ New course"</strong> (top-right button). An inline form expands.</div></li>
+    <li>
+      <div class="step-body">
+        <strong>Fill in the form:</strong><br/>
+        <table class="data-table" style="margin-top:6px">
+          <thead><tr><th>Field</th><th>Required?</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Course code</td><td>Yes</td><td>e.g. <code>CSC 401</code> — automatically uppercased, must be unique</td></tr>
+            <tr><td>Course title</td><td>Yes</td><td>e.g. <code>Software Engineering</code></td></tr>
+            <tr><td>Level</td><td>No</td><td>100, 200, 300, 400, or 500</td></tr>
+            <tr><td>Credit unit</td><td>No</td><td>Default: 3</td></tr>
+            <tr><td>Lecturer</td><td>No</td><td>Select from existing staff accounts</td></tr>
+            <tr><td>Department</td><td>No</td><td>e.g. <code>Computer Science</code></td></tr>
+            <tr><td>Required attendance (%)</td><td>No</td><td>Default: 75. Students below this are flagged "Below requirement" in reports.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </li>
+    <li><div class="step-body"><strong>Click "Create course".</strong> The new course card appears in the grid.</div></li>
+  </ol>
+
+  <h3>5.2 — Managing Students on a Course</h3>
+  <p>Click a course card to open the <strong>Course Detail page</strong>.</p>
+
+  <h4>Adding students to a course</h4>
+  <ol class="steps">
+    <li><div class="step-body">On the course detail page, click <strong>"Add students"</strong> (or use the student search/add panel)</div></li>
+    <li><div class="step-body">Search for students by name or matric number and select them</div></li>
+    <li><div class="step-body">Click <strong>"Add selected students"</strong> — they appear in the course's student list</div></li>
+  </ol>
+
+  <div class="note note-warn">
+    <strong>⚠️ Required before starting a session:</strong> A course must have at least one registered student before a lecture session can be started. Attempting to start a session on an empty course will return an error.
+  </div>
+
+  <h4>Removing a student from a course</h4>
+  <p>On the course detail page, find the student in the list and click the <strong>remove</strong> (×) button next to their name. This removes them from the course's class list but does not delete their student record or historical attendance data.</p>
+
+  <h4>Starting a session from the course page</h4>
+  <p>The course detail page also has a <strong>"Start lecture session"</strong> button — a convenient shortcut to launch a session for that specific course. It takes you directly to the Sessions page with the course pre-selected.</p>
+
+  <h4>Viewing the course report</h4>
+  <p>The <strong>"View report"</strong> button on a course detail page navigates to the Attendance Report for that course.</p>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 5 — Courses</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 6 — SESSIONS
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">6</div>
+    <h2>Lecture Sessions</h2>
+  </div>
+
+  <p>This is the core of the system. A <strong>session</strong> represents a single lecture sitting. Attendance can only be captured while a session is <span class="status-green">open</span>. Once <span class="status-slate">closed</span>, the register is locked and cannot be modified except by deleting individual records (admin only).</p>
+
+  <h3>6.1 — Starting a Session <span class="role-both">Admin &amp; Lecturer</span></h3>
+  <ol class="steps">
+    <li><div class="step-body"><strong>Click "Lecture sessions"</strong> in the sidebar</div></li>
+    <li>
+      <div class="step-body">
+        <strong>Fill in the Start Session form at the top of the page:</strong>
+        <table class="data-table" style="margin-top:6px">
+          <thead><tr><th>Field</th><th>Required?</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Course</td><td>Yes</td><td>Select from the dropdown. Only courses with ≥1 student are listed.</td></tr>
+            <tr><td>Venue</td><td>No</td><td>e.g. <code>LT1</code>, <code>Room 204</code></td></tr>
+            <tr><td>Late after (mins)</td><td>No</td><td>Default: 15. Students recognised after this many minutes from the start are marked <span class="status-amber">late</span> instead of <span class="status-green">present</span>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </li>
+    <li><div class="step-body"><strong>Click "Start session &amp; open camera".</strong> You are immediately taken to the live capture screen.</div></li>
+  </ol>
+
+  <div class="note note-warn">
+    <strong>⚠️ One session at a time:</strong> Only one session per course can be open at a time. If you try to start a session for a course that already has an open one, the system will redirect you to the existing open session instead.
+  </div>
+
+  <h3>6.2 — Live Face-Recognition Capture Screen <span class="role-both">Admin &amp; Lecturer</span></h3>
+  <p>This is the most important screen in the system. It consists of two panels: the camera view on the left and the real-time register on the right.</p>
+
+  <h4>Starting capture</h4>
+  <ol class="steps">
+    <li><div class="step-body"><strong>Click "Start capture".</strong> The browser may ask for camera permission — allow it.</div></li>
+    <li><div class="step-body">The camera turns on. A <span class="status-red">● SCANNING</span> indicator appears in the top-left corner of the video.</div></li>
+    <li><div class="step-body">Every ~0.9 seconds, the system scans every face visible in the frame.</div></li>
+  </ol>
+
+  <h4>Understanding the face boxes (overlay colours)</h4>
+  <div class="legend-row">
+    <div class="legend-item"><div class="legend-dot dot-green"></div><strong>Green box</strong> — Student just recognised and marked present (new record)</div>
+  </div>
+  <div class="legend-row">
+    <div class="legend-item"><div class="legend-dot dot-blue"></div><strong>Blue box</strong> — Student recognised but already marked in this session (no duplicate created)</div>
+  </div>
+  <div class="legend-row">
+    <div class="legend-item"><div class="legend-dot dot-red"></div><strong>Red box</strong> — Face detected but not recognised (not enrolled, not on this course, or lighting issue)</div>
+  </div>
+
+  <h4>The register panels (right side)</h4>
+  <ul class="bullet-list">
+    <li><strong>Present counter:</strong> Shows how many students are marked vs. total on course (e.g. 8/10, 80%)</li>
+    <li><strong>Marked present list:</strong> Students already marked, with the time, method, and status badge</li>
+    <li><strong>Not yet marked list:</strong> Students still absent — each has a "Mark manually" button as a fallback</li>
+  </ul>
+
+  <h4>"Last frame" panel (below camera)</h4>
+  <p>Shows what the most recent scan detected: for each face found, it shows the student name, matric number, match distance, and whether they were just marked or were already recorded.</p>
+
+  <div class="note note-info">
+    <strong>💡 Best practices for capture:</strong>
+    <ul class="bullet-list" style="margin-top:6px">
+      <li>Ask students to sit in rows and face the camera one row at a time for best results.</li>
+      <li>Good lighting is critical — overhead fluorescent lighting works well.</li>
+      <li>The camera does not need to see the whole class at once; scan row by row.</li>
+      <li>Click "Pause capture" if you need to stop scanning temporarily without closing the session.</li>
+    </ul>
+  </div>
+
+  <h3>6.3 — Manual Attendance Fallback</h3>
+  <p>Sometimes a student's face cannot be recognised — poor lighting, camera angle, or if they were not enrolled properly. In this case:</p>
+  <ol class="steps">
+    <li><div class="step-body">Find the student in the <strong>"Not yet marked"</strong> panel on the right</div></li>
+    <li><div class="step-body">Click <strong>"Mark manually"</strong> next to their name</div></li>
+    <li><div class="step-body">The student moves to the "Marked present" list. Their record is tagged with <code>method: manual</code> so it is distinguishable in reports.</div></li>
+  </ol>
+
+  <h3>6.4 — Closing a Session</h3>
+  <p>Once all students have been captured (or the lecture ends), close the session to lock the register.</p>
+  <ol class="steps">
+    <li><div class="step-body">Click <strong>"Close session"</strong> (red button, top-right of the capture screen)</div></li>
+    <li><div class="step-body">A confirmation dialog appears: <em>"Close this session? No further attendance can be captured."</em></div></li>
+    <li><div class="step-body">Click <strong>OK</strong>. The session status changes to <span class="status-slate">closed</span> and you are redirected to the session register.</div></li>
+  </ol>
+
+  <div class="note note-info">
+    <strong>💡 Closing from the sessions list:</strong> You can also close any open session from the main Sessions list by clicking the "Close" button in the actions column.
+  </div>
+
+  <h3>6.5 — Viewing &amp; Correcting the Register</h3>
+  <p>Click any session in the Sessions list (or "View register" link) to see the full attendance register for that session.</p>
+  <ul class="bullet-list">
+    <li><strong>Present list:</strong> student name, matric number, time marked, method (face/manual), match distance score</li>
+    <li><strong>Absent list:</strong> students not marked</li>
+    <li><strong>Export CSV:</strong> download the register as a CSV file</li>
+    <li><strong>Delete a record:</strong> Admin/lecturer can remove an incorrect attendance record by clicking the delete icon next to it</li>
+    <li><strong>Toggle open/closed:</strong> Admin can reopen a closed session to add missed records, then close it again</li>
+  </ul>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 6 — Sessions</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 7 — REPORTS
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">7</div>
+    <h2>Attendance Reports</h2>
+  </div>
+
+  <p>Click <strong>Attendance report</strong> in the sidebar. This page computes the full attendance register for any course, showing every student against every session held.</p>
+
+  <h3>Selecting a Course</h3>
+  <p>Use the <strong>Course</strong> dropdown to select the course you want to view. The report loads automatically. The URL updates with a <code>?course=...</code> parameter so you can bookmark it.</p>
+
+  <h3>Summary Statistics</h3>
+  <p>Four cards appear at the top of the report:</p>
+  <table class="data-table">
+    <thead><tr><th>Card</th><th>What it shows</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Sessions held</strong></td><td>Total number of closed sessions for this course</td></tr>
+      <tr><td><strong>Registered students</strong></td><td>Number of students on the course's class list</td></tr>
+      <tr><td><strong>Average attendance</strong></td><td>Mean attendance percentage across all students</td></tr>
+      <tr><td><strong>Below requirement</strong></td><td>Count of students below the required attendance threshold (default 75%). Amber if any at risk, green if none.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The Attendance Grid</h3>
+  <p>The grid table shows each student as a row and each session date as a column:</p>
+  <div class="legend-row">
+    <div class="legend-item"><span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:4px;font-weight:700;font-size:9pt">P</span> — Present</div>
+    <div class="legend-item"><span style="background:#fef9c3;color:#92400e;padding:2px 8px;border-radius:4px;font-weight:700;font-size:9pt">L</span> — Late</div>
+    <div class="legend-item"><span style="background:#fee2e2;color:#991b1b;padding:2px 8px;border-radius:4px;font-weight:700;font-size:9pt">A</span> — Absent</div>
+  </div>
+
+  <p>The final two columns show:</p>
+  <ul class="bullet-list">
+    <li><strong>%</strong> — Attendance percentage (attended / sessions held × 100)</li>
+    <li><strong>Eligibility</strong> — <span class="status-green">Eligible</span> if percentage ≥ required attendance, otherwise <span class="status-red">Below requirement</span></li>
+  </ul>
+
+  <p>Students are sorted from highest attendance percentage to lowest.</p>
+
+  <h3>Exporting to CSV</h3>
+  <ol class="steps">
+    <li><div class="step-body">Click <strong>"Export CSV"</strong> (top-right of the report page)</div></li>
+    <li><div class="step-body">A file named <code>[COURSE-CODE]-attendance-report.csv</code> is downloaded</div></li>
+    <li><div class="step-body">Open in Microsoft Excel, Google Sheets, or any spreadsheet app</div></li>
+  </ol>
+
+  <p>The CSV includes: S/N, Matric number, Full name, Level, one column per session date (P/L/A), Attended count, Sessions held, Percentage, Eligible (Yes/No).</p>
+
+  <div class="note note-info">
+    <strong>💡 Use case — Exam eligibility:</strong> Run this report at the end of semester. Filter or sort the "Eligible" column in your spreadsheet to identify students who cannot sit for the exam due to low attendance.
+  </div>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 7 — Reports</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 8 — STAFF ACCOUNTS
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">8</div>
+    <h2>Staff Accounts <span style="font-size:11pt;opacity:0.8">(Admin only)</span></h2>
+  </div>
+
+  <p>Only Administrators can access this section. The "Staff accounts" link appears in the sidebar only when logged in as an admin.</p>
+  <p>This page allows you to create and view all staff (lecturer and admin) accounts that can log into the system.</p>
+
+  <h3>Viewing Existing Staff</h3>
+  <p>The right panel lists all staff accounts with their name, email, department, and role badge (<span class="badge-admin">admin</span> or <span class="badge-lect">lecturer</span>).</p>
+
+  <h3>Creating a New Staff Account</h3>
+  <ol class="steps">
+    <li><div class="step-body">Click <strong>Staff accounts</strong> in the sidebar</div></li>
+    <li>
+      <div class="step-body">
+        <strong>Fill in the "Add staff account" form (left panel):</strong>
+        <table class="data-table" style="margin-top:6px">
+          <thead><tr><th>Field</th><th>Required?</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Full name</td><td>Yes</td><td>e.g. <code>Dr. Amaka Obi</code></td></tr>
+            <tr><td>Email</td><td>Yes</td><td>Used as the login username. Must be unique.</td></tr>
+            <tr><td>Password</td><td>Yes</td><td>Minimum 6 characters. Share securely with the staff member.</td></tr>
+            <tr><td>Role</td><td>Yes</td><td>Select <strong>Lecturer</strong> or <strong>Administrator</strong></td></tr>
+            <tr><td>Staff ID</td><td>No</td><td>e.g. <code>STF/023</code></td></tr>
+            <tr><td>Department</td><td>No</td><td>e.g. <code>Computer Science</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </li>
+    <li><div class="step-body"><strong>Click "Create account".</strong> The new account appears in the list on the right.</div></li>
+  </ol>
+
+  <div class="note note-warn">
+    <strong>⚠️ No password reset feature:</strong> There is currently no "forgot password" flow. If a staff member forgets their password, an admin must create a new account for them or the database password must be reset manually.
+  </div>
+
+  <h3>Role Differences — Quick Reference</h3>
+  <table class="data-table">
+    <thead><tr><th>Permission</th><th>Admin</th><th>Lecturer</th></tr></thead>
+    <tbody>
+      <tr><td>Register students / enrol faces</td><td>✅ Yes</td><td>❌ No</td></tr>
+      <tr><td>Create courses</td><td>✅ Yes</td><td>❌ No</td></tr>
+      <tr><td>Start lecture sessions</td><td>✅ Yes</td><td>✅ Yes (own courses)</td></tr>
+      <tr><td>Capture &amp; mark attendance</td><td>✅ Yes</td><td>✅ Yes</td></tr>
+      <tr><td>View attendance reports</td><td>✅ Yes (all courses)</td><td>✅ Yes (own courses)</td></tr>
+      <tr><td>Export CSV reports</td><td>✅ Yes</td><td>✅ Yes</td></tr>
+      <tr><td>Delete sessions / students</td><td>✅ Yes</td><td>❌ No</td></tr>
+      <tr><td>Create staff accounts</td><td>✅ Yes</td><td>❌ No</td></tr>
+      <tr><td>View Staff accounts page</td><td>✅ Yes</td><td>❌ Hidden</td></tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 8 — Staff Accounts</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 9 — USER FLOWS
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">9</div>
+    <h2>User Flows by Role</h2>
+  </div>
+
+  <h3>Use Case 1: First-Time System Setup (Admin)</h3>
+  <div class="flow">
+    <h4>🛠️ One-time setup before the semester begins</h4>
+    <ol class="steps">
+      <li><div class="step-body">Log in as Admin (<code>admin@example.edu</code> / <code>admin1234</code>)</div></li>
+      <li><div class="step-body">Go to <strong>Staff accounts</strong> → Create accounts for each lecturer. Share credentials securely.</div></li>
+      <li><div class="step-body">Go to <strong>Courses</strong> → Create each course (code, title, level, assign lecturer, set required attendance %)</div></li>
+      <li><div class="step-body">Go to <strong>Students</strong> → Register each student: fill details + capture 3 face samples per student</div></li>
+      <li><div class="step-body">Go to each <strong>Course detail page</strong> → Add the relevant students to each course's class list</div></li>
+      <li><div class="step-body">System is ready for the semester</div></li>
+    </ol>
+  </div>
+
+  <h3>Use Case 2: Taking Attendance During a Lecture (Lecturer)</h3>
+  <div class="flow">
+    <h4>🎥 Every lecture workflow</h4>
+    <ol class="steps">
+      <li><div class="step-body">Log in as Lecturer (<code>lecturer@example.edu</code> / <code>lecturer1234</code>)</div></li>
+      <li><div class="step-body">Go to <strong>Lecture sessions</strong> → Select your course, enter venue, set late threshold → Click "Start session &amp; open camera"</div></li>
+      <li><div class="step-body">On the capture screen, click <strong>"Start capture"</strong> and allow camera access</div></li>
+      <li><div class="step-body">Point the camera at students — scan row by row. Green boxes = marked, red = unknown/absent</div></li>
+      <li><div class="step-body">For students the camera cannot recognise → click <strong>"Mark manually"</strong> in the absent list</div></li>
+      <li><div class="step-body">When attendance is complete → click <strong>"Close session"</strong> to lock the register</div></li>
+    </ol>
+  </div>
+
+  <h3>Use Case 3: Checking Exam Eligibility (Admin or Lecturer)</h3>
+  <div class="flow">
+    <h4>📊 End-of-semester eligibility check</h4>
+    <ol class="steps">
+      <li><div class="step-body">Go to <strong>Attendance report</strong></div></li>
+      <li><div class="step-body">Select the course from the dropdown</div></li>
+      <li><div class="step-body">Review the "Below requirement" counter — e.g. "2 students need 75%"</div></li>
+      <li><div class="step-body">Scan the table for students with the <span class="status-red">Below requirement</span> badge</div></li>
+      <li><div class="step-body">Click <strong>"Export CSV"</strong> to download the register for official records or submission</div></li>
+    </ol>
+  </div>
+
+  <h3>Use Case 4: Adding a New Student Mid-Semester (Admin)</h3>
+  <div class="flow">
+    <h4>➕ Adding a late-registered student</h4>
+    <ol class="steps">
+      <li><div class="step-body">Go to <strong>Students</strong> → click "+ Register student"</div></li>
+      <li><div class="step-body">Fill in student details and capture 3 face samples</div></li>
+      <li><div class="step-body">Go to <strong>Courses</strong> → open the relevant course → click "Add students" → search for the new student and add them</div></li>
+      <li><div class="step-body">The student is now included in future sessions and the attendance report (showing absent for all past sessions)</div></li>
+    </ol>
+  </div>
+
+  <h3>Use Case 5: Correcting a Wrong Attendance Record (Admin or Lecturer)</h3>
+  <div class="flow">
+    <h4>✏️ Fixing an incorrect record</h4>
+    <ol class="steps">
+      <li><div class="step-body">Go to <strong>Lecture sessions</strong> → find the session in the list → click "View register"</div></li>
+      <li><div class="step-body">Find the incorrect record in the Present list</div></li>
+      <li><div class="step-body">Click the <strong>delete (×) icon</strong> next to the record — this removes it</div></li>
+      <li><div class="step-body">If the session is closed and a student was missed: click the "Reopen" toggle to make it open, mark manually, then close again</div></li>
+    </ol>
+  </div>
+
+  <h3>Use Case 6: Updating a Student's Face Templates (Admin)</h3>
+  <div class="flow">
+    <h4>🔄 Student's appearance has changed significantly</h4>
+    <ol class="steps">
+      <li><div class="step-body">Go to <strong>Students</strong> → click the student's name</div></li>
+      <li><div class="step-body">On the profile page, click <strong>"Re-enrol face"</strong></div></li>
+      <li><div class="step-body">Capture 3 new samples in good lighting</div></li>
+      <li><div class="step-body">Save — old templates are replaced. The student will now be recognised by the new samples going forward.</div></li>
+    </ol>
+  </div>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 9 — User Flows</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     SECTION 10 — TIPS & TROUBLESHOOTING
+═══════════════════════════════════════════════ -->
+<div class="page section">
+  <div class="section-header">
+    <div class="sec-num">10</div>
+    <h2>Tips, Troubleshooting &amp; Limitations</h2>
+  </div>
+
+  <h3>Common Issues &amp; Fixes</h3>
+  <table class="data-table">
+    <thead><tr><th>Problem</th><th>Likely Cause</th><th>Solution</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>"No face detected" during enrolment</td>
+        <td>Poor lighting or face too far from camera</td>
+        <td>Move closer (50–80 cm), improve lighting, remove glasses/hats</td>
+      </tr>
+      <tr>
+        <td>Camera won't turn on in browser</td>
+        <td>Browser permissions or insecure context</td>
+        <td>Click the camera icon in the browser address bar and "Allow". The site must be accessed over HTTPS (already the case on vercel.app).</td>
+      </tr>
+      <tr>
+        <td>Student always shows red box (not recognised)</td>
+        <td>Face not enrolled, or enrollment samples were poor</td>
+        <td>Re-enrol the student in good lighting (Section 4.4)</td>
+      </tr>
+      <tr>
+        <td>Wrong student being recognised</td>
+        <td>Face threshold too loose, or poor enrollment samples</td>
+        <td>Re-enrol both students in better conditions. Delete the wrong record from the register.</td>
+      </tr>
+      <tr>
+        <td>"This course already has an open session"</td>
+        <td>You or another lecturer started a session earlier</td>
+        <td>The system redirects you to the existing open session automatically</td>
+      </tr>
+      <tr>
+        <td>Can't start a session — "Register students first"</td>
+        <td>Course has no students in its class list</td>
+        <td>Go to the course detail page and add students (Section 5.2)</td>
+      </tr>
+      <tr>
+        <td>Login fails with "Invalid email or password"</td>
+        <td>Wrong credentials or email typo</td>
+        <td>Check the credentials table in Section 2. Email is case-insensitive.</td>
+      </tr>
+      <tr>
+        <td>Session closed before all students captured</td>
+        <td>Accidental close or forgot to scan back rows</td>
+        <td>Admin/lecturer can reopen the session from the register page, add missing students manually, then close again</td>
+      </tr>
+      <tr>
+        <td>Report shows no data / "No sessions held yet"</td>
+        <td>No sessions have been closed for that course yet</td>
+        <td>Run a session and close it. Only closed sessions appear in the report.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Recognition Tips</h3>
+  <ul class="bullet-list">
+    <li><strong>Lighting is the #1 factor.</strong> Well-lit rooms with overhead lights produce the best results. Avoid backlighting (windows behind students).</li>
+    <li><strong>Distance matters.</strong> Faces need to be clearly visible. One camera at the front works well if students come forward row by row.</li>
+    <li><strong>Enrol in the same environment.</strong> If possible, enrol students in the same room / lighting conditions where attendance will be taken.</li>
+    <li><strong>3 samples per student.</strong> The system requires exactly 3 samples at different angles. More angles = more tolerance for head pose variation.</li>
+    <li><strong>Scan frame size.</strong> Don't try to capture the whole lecture hall at once. Move the camera closer, or have students move to a single point for capture.</li>
+  </ul>
+
+  <h3>Known Limitations</h3>
+  <table class="data-table">
+    <thead><tr><th>Limitation</th><th>Details</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>No liveness detection</td>
+        <td>A printed photo or phone screen showing a student's face could theoretically pass. Not an issue for supervised settings.</td>
+      </tr>
+      <tr>
+        <td>Dark or high-contrast environments</td>
+        <td>The face detector may miss faces in very dim or strongly backlit conditions. Use the manual fallback.</td>
+      </tr>
+      <tr>
+        <td>Large classes at distance</td>
+        <td>A single webcam at the front of a large hall won't reach back rows clearly. Best for small-to-medium classrooms or close-range capture.</td>
+      </tr>
+      <tr>
+        <td>No password reset</td>
+        <td>If a staff member forgets their password, an admin must create a new account for them.</td>
+      </tr>
+      <tr>
+        <td>No student portal</td>
+        <td>Students cannot log in to check their own attendance. This information must be communicated by the lecturer or admin.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Quick Reference — Key URLs</h3>
+  <table class="data-table">
+    <thead><tr><th>Page</th><th>URL path</th></tr></thead>
+    <tbody>
+      <tr><td>Login</td><td><code>/login</code></td></tr>
+      <tr><td>Dashboard</td><td><code>/dashboard</code></td></tr>
+      <tr><td>Students list</td><td><code>/students</code></td></tr>
+      <tr><td>Register student</td><td><code>/students/new</code></td></tr>
+      <tr><td>Courses list</td><td><code>/courses</code></td></tr>
+      <tr><td>Lecture sessions</td><td><code>/sessions</code></td></tr>
+      <tr><td>Attendance reports</td><td><code>/reports</code></td></tr>
+      <tr><td>Staff accounts</td><td><code>/staff</code></td></tr>
+    </tbody>
+  </table>
+
+  <hr/>
+
+  <div class="note note-success">
+    <strong>✅ You're ready!</strong> This guide covers every feature of the FaceTrack platform. For the demo site, start by logging in as Admin, exploring the pre-seeded students and courses, then start a lecture session and test the live capture screen.
+  </div>
+
+  <div class="footer">
+    <span>FaceTrack — Face Recognition Attendance System</span>
+    <span>Section 10 — Troubleshooting · End of Guide</span>
+  </div>
+</div>
+
+</body>
+</html>

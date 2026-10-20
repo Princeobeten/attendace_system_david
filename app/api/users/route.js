@@ -3,7 +3,7 @@ import { User } from "@/models";
 import { ok, fail, handler, requireUser } from "@/lib/api";
 
 export const GET = handler(async () => {
-  const auth = await requireUser();
+  const auth = await requireUser(["admin"]);
   if (auth.response) return auth.response;
 
   const users = await User.find({}).select("name email role staffId department").lean();

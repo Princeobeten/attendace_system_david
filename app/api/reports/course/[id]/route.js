@@ -1,5 +1,5 @@
 import { Course, Session, Attendance } from "@/models";
-import { ok, fail, handler, requireUser } from "@/lib/api";
+import { ok, fail, handler, requireUser, canView } from "@/lib/api";
 
 /**
  * Attendance register for a course: every registered student against every
@@ -15,6 +15,7 @@ export const GET = handler(async (_req, { params }) => {
     .populate("lecturer", "name")
     .lean();
   if (!course) return fail("Course not found", 404);
+  if (!canView(auth.user, course)) return fail("This course is not assigned to you", 403);
 
   const sessions = await Session.find({ course: id }).sort({ startedAt: 1 }).lean();
   const records = await Attendance.find({ course: id }).lean();

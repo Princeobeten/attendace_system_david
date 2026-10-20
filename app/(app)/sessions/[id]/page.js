@@ -1,13 +1,16 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import Link from "next/link";
 import { useApi, api, formatDate, formatTime, downloadCsv } from "@/lib/client";
 import { PageHeader, Card, Avatar, Badge } from "@/components/ui";
+import { useUser } from "@/components/UserProvider";
 
 export default function SessionPage({ params }) {
   const { id } = use(params);
+  const { isAdmin } = useUser();
   const { data, loading, error, reload } = useApi(`/api/sessions/${id}`);
+  const [notice, setNotice] = useState("");
 
   if (loading) return <p className="text-sm text-slate-500">Loading session…</p>;
   if (error) return <p className="text-sm text-red-600">{error}</p>;
@@ -18,17 +21,27 @@ export default function SessionPage({ params }) {
     : 0;
 
   async function toggleStatus() {
-    await api(`/api/sessions/${id}`, {
-      method: "PATCH",
-      body: { status: session.status === "open" ? "closed" : "open" },
-    });
-    reload();
+    setNotice("");
+    try {
+      await api(`/api/sessions/${id}`, {
+        method: "PATCH",
+        body: { status: session.status === "open" ? "closed" : "open" },
+      });
+      reload();
+    } catch (err) {
+      setNotice(err.message);
+    }
   }
 
   async function removeRecord(recordId) {
     if (!confirm("Remove this attendance record?")) return;
-    await api(`/api/attendance/${recordId}`, { method: "DELETE" });
-    reload();
+    setNotice("");
+    try {
+      await api(`/api/attendance/${recordId}`, { method: "DELETE" });
+      reload();
+    } catch (err) {
+      setNotice(err.message);
+    }
   }
 
   function exportCsv() {
@@ -70,17 +83,25 @@ export default function SessionPage({ params }) {
             <button onClick={exportCsv} className="btn-ghost">
               Export CSV
             </button>
-            {session.status === "open" && (
+            {!isAdmin && session.status === "open" && (
               <Link href={`/sessions/${id}/capture`} className="btn-primary">
                 Open camera
               </Link>
             )}
-            <button onClick={toggleStatus} className="btn-ghost">
-              {session.status === "open" ? "Close session" : "Reopen session"}
-            </button>
+            {!isAdmin && (
+              <button onClick={toggleStatus} className="btn-ghost">
+                {session.status === "open" ? "Close session" : "Reopen session"}
+              </button>
+            )}
           </div>
         }
       />
+
+      {notice && (
+        <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          {notice}
+        </p>
+      )}
 
       <div className="mb-6 flex flex-wrap gap-3 text-sm">
         <Badge tone={session.status === "open" ? "green" : "slate"}>
@@ -127,13 +148,20 @@ export default function SessionPage({ params }) {
                     <tr key={r._id}>
                       <td className="td text-slate-400">{i + 1}</td>
                       <td className="td">
-                        <Link
-                          href={`/students/${r.student?._id}`}
-                          className="flex items-center gap-2 font-medium text-slate-900"
-                        >
-                          <Avatar src={r.student?.photo} name={r.student?.fullName} size={28} />
-                          {r.student?.fullName}
-                        </Link>
+                        {isAdmin ? (
+                          <Link
+                            href={`/students/${r.student?._id}`}
+                            className="flex items-center gap-2 font-medium text-slate-900"
+                          >
+                            <Avatar src={r.student?.photo} name={r.student?.fullName} size={28} />
+                            {r.student?.fullName}
+                          </Link>
+                        ) : (
+                          <span className="flex items-center gap-2 font-medium text-slate-900">
+                            <Avatar src={r.student?.photo} name={r.student?.fullName} size={28} />
+                            {r.student?.fullName}
+                          </span>
+                        )}
                       </td>
                       <td className="td font-mono text-xs">{r.student?.matricNo}</td>
                       <td className="td">{formatTime(r.markedAt)}</td>
@@ -151,12 +179,14 @@ export default function SessionPage({ params }) {
                         )}
                       </td>
                       <td className="td text-right">
-                        <button
-                          onClick={() => removeRecord(r._id)}
-                          className="text-xs text-red-600 hover:underline"
-                        >
-                          Remove
-                        </button>
+                        {!isAdmin && (
+                          <button
+                            onClick={() => removeRecord(r._id)}
+                            className="text-xs text-red-600 hover:underline"
+                          >
+                            Remove
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

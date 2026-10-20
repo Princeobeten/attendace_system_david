@@ -3,10 +3,11 @@ import { ok, fail, handler, requireUser } from "@/lib/api";
 import { isValidDescriptor } from "@/lib/face";
 
 export const GET = handler(async (req) => {
-  const auth = await requireUser();
+  const auth = await requireUser(["admin"]);
   if (auth.response) return auth.response;
 
-  const q = req.nextUrl.searchParams.get("q");
+  // Escape the search text so "(" or "*" are matched literally.
+  const q = req.nextUrl.searchParams.get("q")?.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const filter = q
     ? {
         $or: [

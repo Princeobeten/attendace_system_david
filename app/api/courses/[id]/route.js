@@ -1,5 +1,5 @@
 import { Course, Session, Attendance } from "@/models";
-import { ok, fail, handler, requireUser } from "@/lib/api";
+import { ok, fail, handler, requireUser, canView } from "@/lib/api";
 
 export const GET = handler(async (_req, { params }) => {
   const auth = await requireUser();
@@ -12,6 +12,7 @@ export const GET = handler(async (_req, { params }) => {
     .lean();
 
   if (!course) return fail("Course not found", 404);
+  if (!canView(auth.user, course)) return fail("This course is not assigned to you", 403);
 
   const sessions = await Session.find({ course: id })
     .sort({ startedAt: -1 })
@@ -35,12 +36,21 @@ export const PATCH = handler(async (req, { params }) => {
 
   const { id } = await params;
   const body = await req.json();
-  const update = {};
+  const $set = {};
+  const $unset = {};
   for (const f of ["code", "title", "level", "unit", "department", "lecturer", "requiredAttendance"]) {
-    if (body[f] !== undefined) update[f] = body[f] || undefined;
+    if (body[f] === undefined) continue;
+    // An emptied field (e.g. "Unassigned" lecturer) is removed, not kept.
+    if (body[f] === "" || body[f] === null) $unset[f] = 1;
+    else $set[f] = body[f];
   }
+  if ($unset.code || $unset.title) return fail("Course code and title are required");
 
-  const course = await Course.findByIdAndUpdate(id, update, { new: true });
+  const course = await Course.findByIdAndUpdate(
+    id,
+    { $set, $unset },
+    { new: true, runValidators: true }
+  );
   if (!course) return fail("Course not found", 404);
   return ok({ success: true });
 });

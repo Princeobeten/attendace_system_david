@@ -5,11 +5,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi, api, formatDate } from "@/lib/client";
 import { PageHeader, Card, Empty, Badge } from "@/components/ui";
+import { useUser } from "@/components/UserProvider";
 
 export default function SessionsPage() {
   const router = useRouter();
+  const { isAdmin } = useUser();
   const { data, loading, error, reload } = useApi("/api/sessions");
-  const { data: courseData } = useApi("/api/courses");
+  const { data: courseData } = useApi(isAdmin ? null : "/api/courses");
   const [form, setForm] = useState({ course: "", venue: "", lateAfterMinutes: 15 });
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -32,66 +34,77 @@ export default function SessionsPage() {
   }
 
   async function close(id) {
-    await api(`/api/sessions/${id}`, { method: "PATCH", body: { status: "closed" } });
-    reload();
+    setNotice("");
+    try {
+      await api(`/api/sessions/${id}`, { method: "PATCH", body: { status: "closed" } });
+      reload();
+    } catch (err) {
+      setNotice(err.message);
+    }
   }
 
   return (
     <div>
       <PageHeader
-        title="Lecture sessions"
-        subtitle="Start a sitting, capture faces, then close it to lock the register."
+        title={isAdmin ? "Session monitor" : "My lecture sessions"}
+        subtitle={
+          isAdmin
+            ? "Every lecture sitting across the department. Lecturers start and close their own sessions."
+            : "Start a sitting, capture faces, then close it to lock the register."
+        }
       />
 
-      <Card className="mb-6 p-5">
-        <form onSubmit={start} className="grid items-end gap-4 sm:grid-cols-4">
-          <div className="sm:col-span-2">
-            <label className="label">Course</label>
-            <select
-              className="input"
-              required
-              value={form.course}
-              onChange={(e) => setForm({ ...form, course: e.target.value })}
-            >
-              <option value="">Select a course…</option>
-              {(courseData?.courses || []).map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.code} — {c.title} ({c.studentCount} students)
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="label">Venue</label>
-            <input
-              className="input"
-              placeholder="e.g. LT1"
-              value={form.venue}
-              onChange={(e) => setForm({ ...form, venue: e.target.value })}
-            />
-          </div>
-          <div>
-            <label className="label">Late after (mins)</label>
-            <input
-              className="input"
-              type="number"
-              min="0"
-              value={form.lateAfterMinutes}
-              onChange={(e) =>
-                setForm({ ...form, lateAfterMinutes: Number(e.target.value) })
-              }
-            />
-          </div>
-          <div className="sm:col-span-4">
-            <button type="submit" disabled={busy} className="btn-primary">
-              {busy ? "Starting…" : "Start session & open camera"}
-            </button>
-            {notice && (
-              <span className="ml-3 text-sm text-red-600">{notice}</span>
-            )}
-          </div>
-        </form>
-      </Card>
+      {!isAdmin && (
+        <Card className="mb-6 p-5">
+          <form onSubmit={start} className="grid items-end gap-4 sm:grid-cols-4">
+            <div className="sm:col-span-2">
+              <label className="label">Course</label>
+              <select
+                className="input"
+                required
+                value={form.course}
+                onChange={(e) => setForm({ ...form, course: e.target.value })}
+              >
+                <option value="">Select a course…</option>
+                {(courseData?.courses || []).map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.code} — {c.title} ({c.studentCount} students)
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Venue</label>
+              <input
+                className="input"
+                placeholder="e.g. LT1"
+                value={form.venue}
+                onChange={(e) => setForm({ ...form, venue: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="label">Late after (mins)</label>
+              <input
+                className="input"
+                type="number"
+                min="0"
+                value={form.lateAfterMinutes}
+                onChange={(e) =>
+                  setForm({ ...form, lateAfterMinutes: Number(e.target.value) })
+                }
+              />
+            </div>
+            <div className="sm:col-span-4">
+              <button type="submit" disabled={busy} className="btn-primary">
+                {busy ? "Starting…" : "Start session & open camera"}
+              </button>
+              {notice && (
+                <span className="ml-3 text-sm text-red-600">{notice}</span>
+              )}
+            </div>
+          </form>
+        </Card>
+      )}
 
       {loading && <p className="text-sm text-slate-500">Loading sessions…</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -99,7 +112,11 @@ export default function SessionsPage() {
       {!loading && data?.sessions.length === 0 && (
         <Empty
           title="No sessions yet"
-          description="Pick a course above and start your first lecture session."
+          description={
+            isAdmin
+              ? "No lecturer has held a session yet."
+              : "Pick a course above and start your first lecture session."
+          }
         />
       )}
 
@@ -110,6 +127,7 @@ export default function SessionsPage() {
               <thead className="border-b border-slate-100 bg-slate-50">
                 <tr>
                   <th className="th">Course</th>
+                  {isAdmin && <th className="th">Lecturer</th>}
                   <th className="th">Started</th>
                   <th className="th">Venue</th>
                   <th className="th">Present</th>
@@ -126,6 +144,7 @@ export default function SessionsPage() {
                       </Link>
                       <p className="text-xs text-slate-500">{s.title}</p>
                     </td>
+                    {isAdmin && <td className="td">{s.lecturer?.name || "—"}</td>}
                     <td className="td">{formatDate(s.startedAt)}</td>
                     <td className="td">{s.venue || "—"}</td>
                     <td className="td font-semibold">{s.presentCount}</td>
@@ -135,7 +154,7 @@ export default function SessionsPage() {
                       </Badge>
                     </td>
                     <td className="td text-right">
-                      {s.status === "open" ? (
+                      {s.status === "open" && !isAdmin ? (
                         <div className="flex justify-end gap-2">
                           <Link
                             href={`/sessions/${s._id}/capture`}

@@ -1,5 +1,5 @@
 import { Session, Course, Student, Attendance } from "@/models";
-import { ok, fail, handler, requireUser } from "@/lib/api";
+import { ok, fail, handler, requireUser, teaches } from "@/lib/api";
 import { findBestMatch, isValidDescriptor, MATCH_THRESHOLD } from "@/lib/face";
 
 /**
@@ -14,7 +14,7 @@ import { findBestMatch, isValidDescriptor, MATCH_THRESHOLD } from "@/lib/face";
  * Body: { sessionId, descriptors: number[][] }
  */
 export const POST = handler(async (req) => {
-  const auth = await requireUser(["admin", "lecturer"]);
+  const auth = await requireUser(["lecturer"]);
   if (auth.response) return auth.response;
 
   const { sessionId, descriptors } = await req.json();
@@ -35,6 +35,9 @@ export const POST = handler(async (req) => {
 
   const course = await Course.findById(session.course).lean();
   if (!course) return fail("Course not found", 404);
+  if (!teaches(auth.user, course)) {
+    return fail("Only the lecturer of this course can take its attendance", 403);
+  }
 
   // Only students registered on THIS course are candidates. This narrows the
   // search (faster and more accurate) and stops an outsider being marked.
@@ -82,26 +85,36 @@ export const POST = handler(async (req) => {
     const now = new Date();
     const status = now > lateCutoff ? "late" : "present";
 
-    // Upsert keyed on (session, student): re-recognising a student who is
-    // already marked is a no-op, so a face can stay in frame harmlessly.
-    const existing = await Attendance.findOne({
+    // Keyed on (session, student): re-recognising a student who is already
+    // marked is a no-op, so a face can stay in frame harmlessly.
+    let existing = await Attendance.findOne({
       session: session._id,
       student: studentId,
     }).lean();
 
     if (!existing) {
-      await Attendance.create({
-        session: session._id,
-        course: course._id,
-        student: studentId,
-        status,
-        method: "face",
-        matchDistance: match.distance,
-        confidence: match.confidence,
-        markedAt: now,
-        markedBy: auth.user.sub,
-      });
-      marked += 1;
+      try {
+        await Attendance.create({
+          session: session._id,
+          course: course._id,
+          student: studentId,
+          status,
+          method: "face",
+          matchDistance: match.distance,
+          confidence: match.confidence,
+          markedAt: now,
+          markedBy: auth.user.sub,
+        });
+        marked += 1;
+      } catch (err) {
+        // Another camera marked this student a moment earlier; the unique
+        // index rejected the duplicate, so treat it as already marked.
+        if (err?.code !== 11000) throw err;
+        existing = await Attendance.findOne({
+          session: session._id,
+          student: studentId,
+        }).lean();
+      }
     }
 
     results.push({

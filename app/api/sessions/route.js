@@ -1,5 +1,5 @@
 import { Session, Course, Attendance } from "@/models";
-import { ok, fail, handler, requireUser } from "@/lib/api";
+import { ok, fail, handler, requireUser, teaches } from "@/lib/api";
 
 export const GET = handler(async (req) => {
   const auth = await requireUser();
@@ -8,7 +8,13 @@ export const GET = handler(async (req) => {
   const courseId = req.nextUrl.searchParams.get("course");
   const filter = {};
   if (courseId) filter.course = courseId;
-  if (auth.user.role !== "admin") filter.lecturer = auth.user.sub;
+  // Lecturers see every sitting of the courses they teach; admins see all.
+  if (auth.user.role !== "admin") {
+    const mine = await Course.find({ lecturer: auth.user.sub }).distinct("_id");
+    filter.course = courseId
+      ? mine.find((c) => String(c) === courseId) ?? null
+      : { $in: mine };
+  }
 
   const sessions = await Session.find(filter)
     .populate("course", "code title")
@@ -32,7 +38,7 @@ export const GET = handler(async (req) => {
 });
 
 export const POST = handler(async (req) => {
-  const auth = await requireUser(["admin", "lecturer"]);
+  const auth = await requireUser(["lecturer"]);
   if (auth.response) return auth.response;
 
   const { course, title, venue, lateAfterMinutes } = await req.json();
@@ -40,6 +46,9 @@ export const POST = handler(async (req) => {
 
   const found = await Course.findById(course);
   if (!found) return fail("Course not found", 404);
+  if (!teaches(auth.user, found)) {
+    return fail("You can only start sessions for courses assigned to you", 403);
+  }
   if (!found.students?.length) {
     return fail("Register students on this course before starting a session");
   }

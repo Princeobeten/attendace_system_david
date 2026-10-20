@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FaceTrack User Guide</title>
+<style>
+  :root{
+    --brand:#4f46e5; --brand-dark:#3730a3; --brand-50:#eef2ff; --brand-100:#e0e7ff;
+    --ink:#0f172a; --body:#334155; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc;
+    --green:#059669; --green-bg:#ecfdf5; --amber:#b45309; --amber-bg:#fffbeb;
+    --red:#dc2626; --red-bg:#fef2f2; --blue:#2563eb; --blue-bg:#eff6ff;
+  }
+  @page { size: A4; margin: 17mm 16mm 20mm 16mm; }
+
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; color:var(--body); background:#fff;
+    font:10.5pt/1.55 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+  }
+  h1,h2,h3,h4{ color:var(--ink); margin:0; font-weight:700; letter-spacing:-.01em; }
+  p{ margin:0 0 9px; }
+  code{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.9em;
+        background:var(--soft); border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+  a{ color:var(--brand); text-decoration:none; }
+
+  /* ---------- cover ---------- */
+  .cover{ height:246mm; display:flex; flex-direction:column; page-break-after:always; }
+  .cover-top{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .mark{ display:flex; align-items:center; gap:10px; font-size:16pt; font-weight:800;
+         color:var(--brand); margin-bottom:30mm; }
+  .cover-meta{ page-break-inside:avoid; }
+  .mark .glyph{ width:34px; height:34px; border-radius:9px; background:var(--brand);
+                color:#fff; display:flex; align-items:center; justify-content:center; font-size:17pt; }
+  .cover h1{ font-size:36pt; line-height:1.08; letter-spacing:-.025em; }
+  .cover .sub{ font-size:13pt; color:var(--muted); margin-top:12px; max-width:135mm; line-height:1.45; }
+  .rule{ height:5px; width:70px; background:var(--brand); border-radius:3px; margin:22px 0 26px; }
+  .cover-live{ border:1.5px solid var(--brand-100); background:var(--brand-50);
+               border-radius:11px; padding:15px 18px; max-width:140mm; }
+  .cover-live .lbl{ font-size:8pt; font-weight:700; letter-spacing:.09em; text-transform:uppercase;
+                    color:var(--brand-dark); }
+  .cover-live .url{ font-family:ui-monospace,Menlo,monospace; font-size:12.5pt;
+                    color:var(--brand-dark); font-weight:600; margin-top:5px; word-break:break-all; }
+  .cover-meta{ border-top:1px solid var(--line); padding-top:14px; display:flex; gap:34px;
+               font-size:9pt; color:var(--muted); }
+  .cover-meta b{ display:block; color:var(--ink); font-size:9.5pt; font-weight:600; margin-top:2px; }
+
+  /* ---------- structure ---------- */
+  .section{ page-break-before:always; }
+  h2.sec{ font-size:19pt; padding-bottom:9px; border-bottom:2.5px solid var(--brand);
+          margin-bottom:16px; }
+  h2.sec .n{ color:var(--brand); }
+  h3{ font-size:12.5pt; margin:20px 0 8px; }
+  h4{ font-size:10.5pt; margin:14px 0 6px; color:var(--brand-dark); }
+  .newpage{ page-break-before:always; }
+  .lead{ font-size:11pt; color:var(--muted); margin:-6px 0 16px; }
+
+  /* ---------- tables ---------- */
+  table{ width:100%; border-collapse:collapse; margin:10px 0 14px; font-size:9.5pt;
+         page-break-inside:auto; }
+  thead{ display:table-header-group; }
+  tr{ page-break-inside:avoid; }
+  th{ background:var(--brand); color:#fff; text-align:left; padding:8px 10px;
+      font-size:8.2pt; text-transform:uppercase; letter-spacing:.055em; font-weight:700; }
+  td{ padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  tr:nth-child(even) td{ background:#fbfcfe; }
+  table.compact td, table.compact th{ padding:6px 9px; font-size:9pt; }
+  .yes{ color:var(--green); font-weight:700; }
+  .no{ color:#cbd5e1; font-weight:700; }
+
+  /* ---------- credential cards ---------- */
+  .creds{ display:flex; gap:12px; margin:14px 0 6px; }
+  .cred{ flex:1; border:1.5px solid var(--line); border-radius:11px; overflow:hidden;
+         page-break-inside:avoid; }
+  .cred .hd{ padding:9px 13px; font-weight:700; font-size:10pt; color:#fff; }
+  .cred.admin .hd{ background:var(--brand); }
+  .cred.lect  .hd{ background:#0f766e; }
+  .cred .bd{ padding:11px 13px; }
+  .cred dl{ margin:0; display:grid; grid-template-columns:auto 1fr; gap:5px 10px; font-size:9.5pt; }
+  .cred dt{ color:var(--muted); }
+  .cred dd{ margin:0; font-family:ui-monospace,Menlo,monospace; font-weight:600; color:var(--ink);
+            word-break:break-all; }
+  .cred .note{ margin-top:9px; padding-top:8px; border-top:1px dashed var(--line);
+               font-size:8.6pt; color:var(--muted); line-height:1.45; }
+
+  /* ---------- callouts ---------- */
+  .box{ border-left:3.5px solid; border-radius:0 8px 8px 0; padding:10px 13px;
+        margin:12px 0; font-size:9.6pt; page-break-inside:avoid; }
+  .box > b:first-child{ display:block; margin-bottom:2px; font-size:9pt; letter-spacing:.02em; }
+  .box.note{ border-color:var(--blue); background:var(--blue-bg); }
+  .box.note > b:first-child{ color:var(--blue); }
+  .box.warn{ border-color:var(--amber); background:var(--amber-bg); }
+  .box.warn > b:first-child{ color:var(--amber); }
+  .box.tip{ border-color:var(--green); background:var(--green-bg); }
+  .box.tip > b:first-child{ color:var(--green); }
+  .box.stop{ border-color:var(--red); background:var(--red-bg); }
+  .box.stop > b:first-child{ color:var(--red); }
+
+  /* ---------- steps ---------- */
+  ol.steps{ list-style:none; counter-reset:s; margin:10px 0 12px; padding:0; }
+  ol.steps > li{ counter-increment:s; position:relative; padding-left:29px; margin-bottom:9px;
+                 page-break-inside:avoid; }
+  ol.steps > li::before{ content:counter(s); position:absolute; left:0; top:1px;
+    width:20px; height:20px; border-radius:50%; background:var(--brand); color:#fff;
+    font-size:8.5pt; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  ol.steps ul{ margin:5px 0 0; padding-left:16px; color:var(--muted); font-size:9.4pt; }
+  ul.plain{ margin:6px 0 10px; padding-left:17px; }
+  ul.plain li{ margin-bottom:4px; }
+
+  /* ---------- figures ---------- */
+  figure{ margin:12px 0 16px; page-break-inside:avoid; }
+  figure img{ width:100%; display:block; border:1px solid var(--line); border-radius:9px; }
+  figcaption{ margin-top:6px; font-size:8.6pt; color:var(--muted); }
+  figcaption b{ color:var(--brand-dark); }
+
+  /* ---------- screen header block ---------- */
+  .screen{ page-break-inside:avoid; }
+  .screen-hd{ display:flex; align-items:baseline; gap:10px; border-bottom:1px solid var(--line);
+              padding-bottom:6px; margin:22px 0 10px; }
+  .screen-hd h3{ margin:0; }
+  .screen-hd .path{ font-family:ui-monospace,Menlo,monospace; font-size:8.6pt; color:var(--muted);
+                    margin-left:auto; background:var(--soft); border:1px solid var(--line);
+                    border-radius:4px; padding:1px 6px; }
+  .role-tag{ font-size:7.6pt; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+             padding:2px 7px; border-radius:20px; }
+  .role-tag.admin{ background:var(--brand-100); color:var(--brand-dark); }
+  .role-tag.both{ background:#d1fae5; color:#065f46; }
+
+  /* ---------- flow diagram ---------- */
+  .flow{ margin:12px 0 18px; page-break-inside:avoid; }
+  .flow-row{ display:flex; align-items:stretch; gap:0; }
+  .fnode{ flex:1; border:1.5px solid var(--brand-100); background:var(--brand-50);
+          border-radius:9px; padding:9px 10px; text-align:center; }
+  .fnode .fn-n{ font-size:7.4pt; font-weight:800; color:var(--brand); letter-spacing:.08em; }
+  .fnode .fn-t{ font-size:9pt; font-weight:600; color:var(--ink); margin-top:2px; line-height:1.3; }
+  .fnode .fn-s{ font-size:8.1pt; color:var(--muted); margin-top:3px; line-height:1.35; }
+  .farrow{ display:flex; align-items:center; padding:0 6px; color:var(--brand); font-size:13pt;
+           font-weight:700; }
+  .flow-title{ font-size:10pt; font-weight:700; color:var(--ink); margin-bottom:8px;
+               display:flex; align-items:center; gap:8px; }
+  .flow-title .who{ font-size:7.6pt; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+                    background:var(--ink); color:#fff; padding:2px 8px; border-radius:20px; }
+
+  /* ---------- legend ---------- */
+  .legend{ display:flex; gap:10px; margin:12px 0 14px; }
+  .lg{ flex:1; border:1.5px solid var(--line); border-radius:9px; padding:10px 12px;
+       page-break-inside:avoid; }
+  .lg .swatch{ height:5px; border-radius:3px; margin-bottom:7px; }
+  .lg b{ display:block; font-size:9.4pt; color:var(--ink); }
+  .lg span{ font-size:8.6pt; color:var(--muted); line-height:1.4; display:block; margin-top:2px; }
+
+  /* ---------- use cases ---------- */
+  .uc{ border:1.5px solid var(--line); border-radius:10px; margin:11px 0; overflow:hidden;
+       page-break-inside:avoid; }
+  .uc-hd{ background:var(--soft); border-bottom:1px solid var(--line); padding:8px 12px;
+          display:flex; align-items:center; gap:9px; }
+  .uc-hd .id{ font-family:ui-monospace,Menlo,monospace; font-size:8.4pt; font-weight:700;
+              background:var(--brand); color:#fff; padding:2px 7px; border-radius:4px; }
+  .uc-hd .ttl{ font-weight:700; font-size:10pt; color:var(--ink); }
+  .uc-hd .actor{ margin-left:auto; font-size:8.4pt; color:var(--muted); }
+  .uc-bd{ padding:10px 12px; font-size:9.4pt; }
+  .uc-bd dl{ margin:0; display:grid; grid-template-columns:78px 1fr; gap:4px 10px; }
+  .uc-bd dt{ color:var(--muted); font-size:8.6pt; padding-top:1px; }
+  .uc-bd dd{ margin:0; }
+
+  /* ---------- quick reference ---------- */
+  .qr{ border:2.5px solid var(--brand); border-radius:13px; padding:18px 20px; margin-top:6px; }
+  .qr h3{ margin-top:0; color:var(--brand-dark); }
+  .qr-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .kbd{ display:inline-block; border:1px solid var(--line); border-bottom-width:2px;
+        border-radius:4px; padding:1px 6px; font-size:8.6pt; background:#fff; }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<section class="cover">
+  <div class="cover-top">
+    <div class="mark"><span class="glyph">&#9678;</span> FaceTrack</div>
+    <h1>User Guide</h1>
+    <div class="rule"></div>
+    <p class="sub">
+      A complete, step-by-step walkthrough of the Face Recognition Based Classroom
+      Attendance System &mdash; every screen, every user flow, and the accounts you
+      need to reach each part of the platform.
+    </p>
+    <div class="cover-live" style="margin-top:26px">
+      <div class="lbl">Live application</div>
+      <div class="url">https://attendace-system-david.vercel.app/</div>
+    </div>
+  </div>
+  <div class="cover-meta">
+    <div>Document<b>User Guide v1.0</b></div>
+    <div>System<b>FaceTrack Attendance</b></div>
+    <div>Audience<b>Administrators &amp; Lecturers</b></div>
+    <div>Date<b>September 2026</b></div>
+  </div>
+</section>
+
+<!-- ============ CONTENTS ============ -->
+<section class="section">
+  <h2 class="sec"><span class="n">&mdash;</span> Contents</h2>
+  <table class="compact">
+    <tr><td style="width:34px"><b>1</b></td><td><b>What FaceTrack does</b><br><span style="color:var(--muted)">The problem it solves and how the pieces fit together</span></td></tr>
+    <tr><td><b>2</b></td><td><b>Before you start</b><br><span style="color:var(--muted)">Browser, camera and first-load requirements</span></td></tr>
+    <tr><td><b>3</b></td><td><b>Accounts &amp; passwords</b><br><span style="color:var(--muted)">Who signs in with what, and what each role unlocks</span></td></tr>
+    <tr><td><b>4</b></td><td><b>The screens, one by one</b><br><span style="color:var(--muted)">Twelve screens with screenshots and numbered steps</span></td></tr>
+    <tr><td><b>5</b></td><td><b>User flows</b><br><span style="color:var(--muted)">Set-up, the daily lecture routine, and end-of-semester reporting</span></td></tr>
+    <tr><td><b>6</b></td><td><b>Use cases</b><br><span style="color:var(--muted)">Ten documented use cases with actors, steps and outcomes</span></td></tr>
+    <tr><td><b>7</b></td><td><b>Troubleshooting</b><br><span style="color:var(--muted)">What to do when something does not work</span></td></tr>
+    <tr><td><b>8</b></td><td><b>Quick reference card</b><br><span style="color:var(--muted)">One page to keep beside you during a demonstration</span></td></tr>
+  </table>
+
+  <div class="box note" style="margin-top:20px">
+    <b>How to read this guide</b>
+    Sections 1&ndash;3 get you signed in. Section 4 explains every screen you will meet.
+    Section 5 strings those screens into the three journeys you will actually perform.
+    If you are demonstrating the system and only have five minutes, go straight to
+    the quick reference card in section 8.
+  </div>
+</section>
+
+<!-- ============ 1. WHAT IT DOES ============ -->
+<section class="section">
+  <h2 class="sec"><span class="n">1.</span> What FaceTrack does</h2>
+  <p class="lead">Attendance that is taken by the camera, not by a register passed around the hall.</p>
+
+  <p>
+    In most lecture halls attendance is still taken on paper. It eats lecture time,
+    the sheets get lost, and students sign for friends who are not in the room.
+    FaceTrack replaces that with a camera at the front of the class: a student looks
+    at it, is recognised from their own face, and is marked present in under a second.
+  </p>
+
+  <h3>How the parts fit together</h3>
+  <div class="flow">
+    <div class="flow-row">
+      <div class="fnode">
+        <div class="fn-n">INPUT</div>
+        <div class="fn-t">Camera</div>
+        <div class="fn-s">The lecturer's webcam captures the room</div>
+      </div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode">
+        <div class="fn-n">PROCESSING</div>
+        <div class="fn-t">Browser</div>
+        <div class="fn-s">Finds each face and turns it into 128 numbers</div>
+      </div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode">
+        <div class="fn-n">MATCHING</div>
+        <div class="fn-t">Server</div>
+        <div class="fn-s">Compares against enrolled students on that course</div>
+      </div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode">
+        <div class="fn-n">OUTPUT</div>
+        <div class="fn-t">Register</div>
+        <div class="fn-s">Attendance saved, reports and CSV produced</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box tip">
+    <b>Your camera footage never leaves your computer</b>
+    The browser converts each face into a list of 128 numbers &mdash; a "descriptor" &mdash;
+    and only those numbers are sent to the server. No photograph of the classroom is
+    ever uploaded, and a descriptor cannot be turned back into a picture of a face.
+  </div>
+
+  <h3>What it gives you</h3>
+  <table>
+    <thead><tr><th style="width:33%">Capability</th><th>What it means in practice</th></tr></thead>
+    <tbody>
+      <tr><td><b>Instant attendance</b></td><td>No roll call. The camera scans continuously while you teach.</td></tr>
+      <tr><td><b>No proxy attendance</b></td><td>A student must present their own face. Naming somebody is not enough &mdash; matching happens on the server, against templates the browser never sees.</td></tr>
+      <tr><td><b>No double entries</b></td><td>A student who stays in front of the camera for ten minutes still produces exactly one record. The database itself enforces this.</td></tr>
+      <tr><td><b>Late tracking</b></td><td>Anyone recognised after your cut-off (15 minutes by default) is marked <i>late</i> rather than <i>present</i>.</td></tr>
+      <tr><td><b>Locked registers</b></td><td>Closing a session freezes it. Attendance cannot be added to a lecture that has finished.</td></tr>
+      <tr><td><b>Reports &amp; eligibility</b></td><td>Attendance percentage per student, flagged against the course requirement (75% by default), exportable as CSV.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 2. BEFORE YOU START ============ -->
+<section class="section">
+  <h2 class="sec"><span class="n">2.</span> Before you start</h2>
+  <p class="lead">Three things to check before your first lecture.</p>
+
+  <h3>2.1 &nbsp;What you need</h3>
+  <table>
+    <thead><tr><th style="width:28%">Requirement</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td><b>Browser</b></td><td>Google Chrome, Microsoft Edge or Safari, kept up to date. Chrome gives the smoothest camera performance.</td></tr>
+      <tr><td><b>Camera</b></td><td>Any built-in laptop webcam or USB camera. A camera you can angle towards the students works best.</td></tr>
+      <tr><td><b>Internet</b></td><td>Needed to reach the site and save attendance. Face detection itself runs on your own machine.</td></tr>
+      <tr><td><b>Lighting</b></td><td>Faces must be lit from the front. Students backlit by a window are the single most common cause of a missed face.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.2 &nbsp;The first load takes a moment</h3>
+  <p>
+    The first time you open the <b>Register student</b> or <b>live capture</b> screen in a
+    given browser, roughly <b>12&nbsp;MB</b> of face-recognition models download in the
+    background. The camera button stays greyed out and reads
+    <span class="kbd">Loading face detector&hellip;</span> until this finishes &mdash; usually
+    10 to 40 seconds. The browser caches them afterwards, so it only happens once.
+  </p>
+  <div class="box warn">
+    <b>Open the capture screen a minute before your lecture starts</b>
+    That lets the models finish downloading while students are still settling, instead
+    of during the first minute of class.
+  </div>
+
+  <h3>2.3 &nbsp;The camera only works on a secure address</h3>
+  <p>
+    Browsers refuse camera access unless the page is on <code>https://</code> or
+    <code>localhost</code>. The live site is on HTTPS, so it works:
+  </p>
+  <table class="compact">
+    <thead><tr><th style="width:52%">Address</th><th>Camera</th></tr></thead>
+    <tbody>
+      <tr><td><code>https://attendace-system-david.vercel.app/</code></td><td class="yes">&#10003; Works</td></tr>
+      <tr><td><code>http://localhost:3000</code> (running it yourself)</td><td class="yes">&#10003; Works</td></tr>
+      <tr><td><code>http://192.168.x.x:3000</code> (a LAN address)</td><td class="no">&#10007; Blocked by the browser</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 3. ACCOUNTS ============ -->
+<section class="section">
+  <h2 class="sec"><span class="n">3.</span> Accounts &amp; passwords</h2>
+  <p class="lead">Students never sign in &mdash; they are identified by their face. Only staff have accounts.</p>
+
+  <h3>3.1 &nbsp;Sign-in details</h3>
+  <p>Open <a href="https://attendace-system-david.vercel.app/">https://attendace-system-david.vercel.app/</a> and you will land on the sign-in screen. Use one of these accounts:</p>
+
+  <div class="creds">
+    <div class="cred admin">
+      <div class="hd">Administrator &mdash; full access</div>
+      <div class="bd">
+        <dl>
+          <dt>Email</dt><dd>admin@example.edu</dd>
+          <dt>Password</dt><dd>admin1234</dd>
+          <dt>Signs in as</dt><dd style="font-family:inherit;font-weight:600">Dr. Grace Adeyemi</dd>
+        </dl>
+        <div class="note">
+          Use this account to <b>register students, capture face templates, create courses
+          and manage staff accounts</b>. It sees every course in the system.
+        </div>
+      </div>
+    </div>
+    <div class="cred lect">
+      <div class="hd">Lecturer &mdash; teaching access</div>
+      <div class="bd">
+        <dl>
+          <dt>Email</dt><dd>lecturer@example.edu</dd>
+          <dt>Password</dt><dd>lecturer1234</dd>
+          <dt>Signs in as</dt><dd style="font-family:inherit;font-weight:600">Mr. Emeka Nwosu</dd>
+        </dl>
+        <div class="note">
+          Use this account to <b>run lectures</b> &mdash; start sessions, capture attendance,
+          close registers and read reports. It only sees the courses assigned to it.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="box stop">
+    <b>These are demonstration passwords</b>
+    They are deliberately simple so the system can be shown and marked. Before the platform
+    is used with real student data, create fresh accounts under <b>Staff accounts</b> with
+    strong passwords and delete these two.
+  </div>
+
+  <h3 class="newpage" style="margin-top:0">3.2 &nbsp;What each role can do</h3>
+  <table class="compact">
+    <thead><tr><th style="width:52%">Action</th><th style="width:24%">Administrator</th><th style="width:24%">Lecturer</th></tr></thead>
+    <tbody>
+      <tr><td>Sign in and see the dashboard</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+      <tr><td>Register a new student and capture their face</td><td class="yes">&#10003;</td><td class="no">&#10007;</td></tr>
+      <tr><td>Edit, re-enrol or delete a student</td><td class="yes">&#10003;</td><td class="no">&#10007;</td></tr>
+      <tr><td>Create or delete a course</td><td class="yes">&#10003;</td><td class="no">&#10007;</td></tr>
+      <tr><td>Add students to a course class list</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+      <tr><td>Start a lecture session</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+      <tr><td>Capture attendance with the camera</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+      <tr><td>Mark a student manually</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+      <tr><td>Close or reopen a session</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+      <tr><td>Remove a wrong attendance record</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+      <tr><td>View reports and export CSV</td><td class="yes">&#10003;</td><td class="yes">&#10003;</td></tr>
+      <tr><td>See <i>every</i> course in the institution</td><td class="yes">&#10003;</td><td class="no">&#10007; own only</td></tr>
+      <tr><td>Create staff accounts</td><td class="yes">&#10003;</td><td class="no">&#10007;</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box note">
+    <b>Signing out</b>
+    Your name sits at the bottom of the left sidebar with a <span class="kbd">Sign out</span>
+    button beneath it. Sessions expire automatically after 8 hours.
+  </div>
+</section>
+
+<!-- ============ 4. SCREENS ============ -->
+<section class="section">
+  <h2 class="sec"><span class="n">4.</span> The screens, one by one</h2>
+  <p class="lead">Every screen in the platform, what it is for, and exactly what to click.</p>
+
+  <!-- 4.1 -->
+  <div class="screen-hd">
+    <h3>4.1&nbsp; Sign in</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/login</span>
+  </div>
+  <p>The entry point. There is no student login and no public sign-up &mdash; accounts are created by an administrator.</p>
+  <ol class="steps">
+    <li>Open <code>https://attendace-system-david.vercel.app/</code>. You are redirected here automatically.</li>
+    <li>Enter your <b>email address</b> and <b>password</b> from section 3.1.</li>
+    <li>Press <b>Sign in</b>. You land on the Dashboard.</li>
+  </ol>
+  <figure>
+    <img src="01-login.png" alt="Sign-in screen">
+    <figcaption><b>Figure 1.</b> The sign-in screen. Wrong details produce a red message under the password field &mdash; the system never reveals whether it was the email or the password that was wrong.</figcaption>
+  </figure>
+
+  <!-- 4.2 -->
+  <div class="screen-hd">
+    <h3>4.2&nbsp; Dashboard</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/dashboard</span>
+  </div>
+  <p>Your landing page and the fastest route back into a lecture that is already running.</p>
+  <ul class="plain">
+    <li><b>Registered students</b> &mdash; total on the system, with a warning chip counting those who still have no face template.</li>
+    <li><b>Courses</b> &mdash; how many courses you are responsible for.</li>
+    <li><b>Open sessions</b> &mdash; lectures currently accepting attendance.</li>
+    <li><b>Marked today</b> &mdash; records saved today, split between face and manual.</li>
+    <li><b>Open lecture sessions</b> &mdash; each has an <b>Open camera</b> button that takes you straight to capture.</li>
+    <li><b>Recent attendance</b> &mdash; the last eight students marked anywhere in the system.</li>
+  </ul>
+  <figure>
+    <img src="02-dashboard.png" alt="Dashboard">
+    <figcaption><b>Figure 2.</b> The dashboard. The amber chip &mdash; <i>&ldquo;10 without a face template&rdquo;</i> &mdash; is the one to watch: those students cannot be recognised until somebody enrols their face.</figcaption>
+  </figure>
+
+  <!-- 4.3 -->
+  <div class="screen-hd">
+    <h3>4.3&nbsp; Students</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/students</span>
+  </div>
+  <p>The full student roll, with each student's biometric enrolment status.</p>
+  <ol class="steps">
+    <li>Use the <b>search box</b> to filter by name, matriculation number or department as you type.</li>
+    <li>Read the <b>Face template</b> column: a green <i>&ldquo;3 samples&rdquo;</i> badge means the student can be recognised; a red <i>&ldquo;Not enrolled&rdquo;</i> badge means they cannot.</li>
+    <li>Click any student's name to open their profile.</li>
+    <li>Click <b>+ Register student</b> (top right) to add somebody new.</li>
+  </ol>
+  <figure>
+    <img src="03-students.png" alt="Students list">
+    <figcaption><b>Figure 3.</b> The student roll. Everyone here still shows <i>Not enrolled</i> &mdash; seeded records deliberately ship without face templates, because a template is only meaningful if it came from a real face.</figcaption>
+  </figure>
+
+  <!-- 4.4 -->
+  <div class="screen-hd">
+    <h3>4.4&nbsp; Register a student &amp; enrol their face</h3><span class="role-tag admin">Admin only</span>
+    <span class="path">/students/new</span>
+  </div>
+  <p><b>This is the most important screen in the system.</b> A student who has never been enrolled here can never be recognised in class.</p>
+  <ol class="steps">
+    <li>Fill in the <b>matriculation number</b> and <b>full name</b> (both required). Email, department and level are optional but make reports easier to read.</li>
+    <li>On the right, wait for the button to change from <i>Loading face detector&hellip;</i> to <b>Turn on camera</b>, then press it. Allow camera access when the browser asks.</li>
+    <li>Sit the student squarely in frame, well lit, about an arm's length from the camera.</li>
+    <li>Press <b>Capture sample</b> three times, following the prompt under the video each time:
+      <ul>
+        <li>Sample 1 &mdash; <i>look straight at the camera</i></li>
+        <li>Sample 2 &mdash; <i>turn your head slightly to the left</i></li>
+        <li>Sample 3 &mdash; <i>turn your head slightly to the right</i></li>
+      </ul>
+    </li>
+    <li>Each successful capture flashes a green box and adds a thumbnail below. The counter climbs to <b>3/3</b>.</li>
+    <li>Press <b>Save student</b>.</li>
+  </ol>
+  <figure>
+    <img src="04-register-student.png" alt="Register student and face enrolment">
+    <figcaption><b>Figure 4.</b> Registration. Details on the left, face enrolment on the right. The <b>0/3</b> counter tracks captured samples.</figcaption>
+  </figure>
+  <div class="box tip">
+    <b>Why three samples from three angles?</b>
+    A single head-on template fails the moment a student tilts their head in a real lecture.
+    Three angles give the matcher room to recognise the same person in a natural pose &mdash;
+    this is the single biggest thing you can do to improve accuracy in the hall.
+  </div>
+  <div class="box warn">
+    <b>If capture keeps failing</b>
+    &ldquo;No face detected&rdquo; almost always means the light is behind the student. Turn them
+    to face a window or a lamp. &ldquo;Face is unclear&rdquo; means they are too far away or moving.
+  </div>
+
+  <!-- 4.5 -->
+  <div class="screen-hd">
+    <h3>4.5&nbsp; Student profile</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/students/[id]</span>
+  </div>
+  <p>Everything recorded about one student.</p>
+  <ul class="plain">
+    <li><b>Left panel</b> &mdash; photo, details, template status, and the courses they are registered on.</li>
+    <li><b>Attendance history</b> &mdash; the last 50 records with course, session, time, status and whether it was face or manual.</li>
+    <li><b>Re-enrol face</b> &mdash; captures three fresh samples and <i>replaces</i> the stored ones. Use this when a student is repeatedly not recognised, or their appearance has changed.</li>
+    <li><b>Delete</b> &mdash; removes the student, their face template and all their attendance. Admin only, and it cannot be undone.</li>
+  </ul>
+  <figure>
+    <img src="05-student-profile.png" alt="Student profile">
+    <figcaption><b>Figure 5.</b> A student profile showing details, registered courses and attendance history.</figcaption>
+  </figure>
+
+  <!-- 4.6 -->
+  <div class="screen-hd">
+    <h3>4.6&nbsp; Courses</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/courses</span>
+  </div>
+  <p>Administrators see every course; lecturers see only their own.</p>
+  <ol class="steps">
+    <li>Press <b>+ New course</b> to open the creation form.</li>
+    <li>Enter the <b>course code</b> and <b>title</b> (required), then level, credit unit, department and the <b>lecturer</b> who will teach it.</li>
+    <li>Set <b>Required attendance (%)</b> &mdash; the threshold used to decide exam eligibility. The default is 75.</li>
+    <li>Press <b>Create course</b>, then click the new card to add students to it.</li>
+  </ol>
+  <figure>
+    <img src="06-courses.png" alt="Courses list">
+    <figcaption><b>Figure 6.</b> Course cards showing class size, level and the attendance requirement.</figcaption>
+  </figure>
+
+  <!-- 4.7 -->
+  <div class="screen-hd">
+    <h3>4.7&nbsp; Course detail &amp; class list</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/courses/[id]</span>
+  </div>
+  <p>
+    The class list matters more than it looks: <b>only students registered on a course are
+    candidates for recognition in that course's lectures.</b> This is what stops a student
+    from another class walking past the camera and being marked present.
+  </p>
+  <ol class="steps">
+    <li>Press <b>+ Add students</b> to open the picker.</li>
+    <li>Search, then tick each student you want. A red <i>no face</i> badge warns you that a student has no template and will not be recognised.</li>
+    <li>Press <b>Register N student(s)</b>, then <b>Done</b>.</li>
+    <li>Use <b>Remove</b> beside any name to take them off the course.</li>
+    <li><b>Start lecture session</b> (top right) begins a sitting and jumps straight to the camera.</li>
+  </ol>
+  <figure>
+    <img src="07b-add-students.png" alt="Adding students to a course">
+    <figcaption><b>Figure 7.</b> The class list with the add-students picker open. On the right, every session held for this course with its attendance count.</figcaption>
+  </figure>
+
+  <!-- 4.8 -->
+  <div class="screen-hd">
+    <h3>4.8&nbsp; Lecture sessions</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/sessions</span>
+  </div>
+  <p>A <b>session</b> is one sitting of one lecture. Attendance can only be recorded into an open session.</p>
+  <ol class="steps">
+    <li>Choose the <b>course</b> from the dropdown &mdash; it shows how many students are registered on each.</li>
+    <li>Type the <b>venue</b> (for example <i>LT1</i>) so the register is identifiable later.</li>
+    <li>Set <b>Late after (mins)</b>. Anyone recognised after this many minutes is marked <i>late</i> instead of <i>present</i>. Default 15.</li>
+    <li>Press <b>Start session &amp; open camera</b>.</li>
+  </ol>
+  <p>The table below lists every session. Open ones offer <b>Capture</b> and <b>Close</b>; closed ones offer <b>View register</b>.</p>
+  <figure>
+    <img src="08-sessions.png" alt="Lecture sessions">
+    <figcaption><b>Figure 8.</b> Starting a session, above the history of every sitting held.</figcaption>
+  </figure>
+  <div class="box note">
+    <b>One open session per course</b>
+    If a session is already open for that course, the system takes you to it rather than
+    creating a duplicate &mdash; so a face can never be captured into the wrong sitting.
+  </div>
+
+  <!-- 4.9 -->
+  <div class="screen-hd">
+    <h3>4.9&nbsp; Live capture &mdash; taking attendance</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/sessions/[id]/capture</span>
+  </div>
+  <p>The screen you will spend your lecture on.</p>
+  <ol class="steps">
+    <li>Wait for the button to read <b>Start capture</b> rather than <i>Loading face detector&hellip;</i>, then press it and allow camera access.</li>
+    <li>A red <b>SCANNING</b> badge appears. The system now analyses a frame roughly every second.</li>
+    <li>Point the camera at the students. Each detected face gets a coloured box and a name label.</li>
+    <li>Watch the right-hand column: <b>Present</b> counts up, students move from <b>Not yet marked</b> to <b>Marked present</b> as they are recognised.</li>
+    <li>For anyone the camera cannot pick up, press <b>Mark manually</b> beside their name.</li>
+    <li>When the lecture ends press <b>Close session</b> to lock the register.</li>
+  </ol>
+  <figure>
+    <img src="09-capture.png" alt="Live capture screen">
+    <figcaption><b>Figure 9.</b> The capture screen before the camera is switched on. Video on the left, the live register on the right, and a <b>Last frame</b> panel underneath explaining what the system just decided.</figcaption>
+  </figure>
+
+  <h4>What the box colours mean</h4>
+  <div class="legend">
+    <div class="lg">
+      <div class="swatch" style="background:#22c55e"></div>
+      <b>Green &mdash; newly marked</b>
+      <span>Recognised and just saved to the register. The count on the right goes up.</span>
+    </div>
+    <div class="lg">
+      <div class="swatch" style="background:#3b82f6"></div>
+      <b>Blue &mdash; already marked</b>
+      <span>Recognised, but already recorded for this session. Nothing changes &mdash; safe to stay in frame.</span>
+    </div>
+    <div class="lg">
+      <div class="swatch" style="background:#ef4444"></div>
+      <b>Red &mdash; not recognised</b>
+      <span>Either not registered on this course, or has no face template enrolled.</span>
+    </div>
+  </div>
+
+  <div class="box tip">
+    <b>Getting the best results in a hall</b>
+    Faces need to be reasonably large in the frame, so one camera at the front will not
+    reach the back row. The most reliable arrangement is to have students walk past the
+    camera as they come in, or to pan the camera along each row in turn while you set up.
+  </div>
+  <div class="box note">
+    <b>The frames counter</b>
+    <i>&ldquo;N frames scanned &middot; N faces seen&rdquo;</i> under the video tells you the system is
+    genuinely working even when nobody is in view. If frames are not climbing, capture is paused.
+  </div>
+
+  <!-- 4.10 -->
+  <div class="screen-hd">
+    <h3>4.10&nbsp; Session register</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/sessions/[id]</span>
+  </div>
+  <p>The formal record of one lecture &mdash; who was present, who was late, who was absent.</p>
+  <ul class="plain">
+    <li><b>Present</b> table &mdash; each student with the time they were marked, their status, and the method. Face records also show the match distance in brackets: lower means a stronger match.</li>
+    <li><b>Absent</b> panel &mdash; everyone on the class list who was never marked.</li>
+    <li><b>Export CSV</b> &mdash; downloads the register, absentees included, for your records.</li>
+    <li><b>Remove</b> &mdash; deletes a single record if it was captured in error.</li>
+    <li><b>Close / Reopen session</b> &mdash; locks or unlocks the register.</li>
+  </ul>
+  <figure>
+    <img src="10-register.png" alt="Session register">
+    <figcaption><b>Figure 10.</b> A closed register. The figure in brackets beside <i>face</i> is the match distance &mdash; the numerical strength of the recognition.</figcaption>
+  </figure>
+
+  <!-- 4.11 -->
+  <div class="screen-hd">
+    <h3>4.11&nbsp; Attendance report</h3><span class="role-tag both">Everyone</span>
+    <span class="path">/reports</span>
+  </div>
+  <p>The whole semester for one course on a single grid &mdash; this is the screen to show during a demonstration or defence.</p>
+  <ol class="steps">
+    <li>Pick a <b>course</b> from the dropdown.</li>
+    <li>Read the four summary cards: sessions held, students registered, average attendance, and how many fall below the requirement.</li>
+    <li>Read the grid &mdash; one row per student, one column per lecture:
+      <ul>
+        <li><b>P</b> (green) &mdash; present &nbsp;&middot;&nbsp; <b>L</b> (amber) &mdash; late &nbsp;&middot;&nbsp; <b>A</b> (red) &mdash; absent</li>
+      </ul>
+    </li>
+    <li>The <b>%</b> column and the <b>Eligibility</b> badge show whether each student meets the course requirement.</li>
+    <li>Press <b>Export CSV</b> for a spreadsheet copy of the entire grid.</li>
+  </ol>
+  <figure>
+    <img src="11-report.png" alt="Attendance report">
+    <figcaption><b>Figure 11.</b> The attendance report. Rows are sorted best-attendance first, so students at risk of being barred from the exam collect at the bottom.</figcaption>
+  </figure>
+
+  <!-- 4.12 -->
+  <div class="screen-hd">
+    <h3>4.12&nbsp; Staff accounts</h3><span class="role-tag admin">Admin only</span>
+    <span class="path">/staff</span>
+  </div>
+  <p>Where lecturers and administrators are created. This item does not appear in the sidebar for lecturers.</p>
+  <ol class="steps">
+    <li>Fill in <b>full name</b>, <b>email</b> and a <b>password</b> of at least six characters.</li>
+    <li>Choose the <b>role</b> &mdash; <i>Lecturer</i> for teaching staff, <i>Administrator</i> for full access.</li>
+    <li>Optionally add a staff ID and department.</li>
+    <li>Press <b>Create account</b>. The new account appears in the list on the right and can sign in immediately.</li>
+  </ol>
+  <figure>
+    <img src="12-staff.png" alt="Staff accounts">
+    <figcaption><b>Figure 12.</b> Staff account management. Create a lecturer here before assigning them a course in section 4.6.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ 5. FLOWS ============ -->
+<section class="section">
+  <h2 class="sec"><span class="n">5.</span> User flows</h2>
+  <p class="lead">The three journeys that string the screens together.</p>
+
+  <!-- Flow A -->
+  <div class="flow-title"><span class="who">Administrator</span> Flow A &mdash; Setting up a course for the first time</div>
+  <div class="flow">
+    <div class="flow-row">
+      <div class="fnode"><div class="fn-n">STEP 1</div><div class="fn-t">Sign in</div><div class="fn-s">as administrator</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 2</div><div class="fn-t">Register students</div><div class="fn-s">details + 3 face samples each</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 3</div><div class="fn-t">Create course</div><div class="fn-s">code, title, lecturer, 75%</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 4</div><div class="fn-t">Build class list</div><div class="fn-s">add students to the course</div></div>
+    </div>
+  </div>
+  <p style="font-size:9.6pt;color:var(--muted);margin-top:-6px">
+    Do this once per course, before the first lecture. Step 2 is the slow one &mdash; budget
+    about a minute per student, and do it in a well-lit room.
+  </p>
+
+  <!-- Flow B -->
+  <div class="flow-title" style="margin-top:26px"><span class="who">Lecturer</span> Flow B &mdash; Taking attendance in a lecture</div>
+  <div class="flow">
+    <div class="flow-row">
+      <div class="fnode"><div class="fn-n">STEP 1</div><div class="fn-t">Start session</div><div class="fn-s">course, venue, late cut-off</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 2</div><div class="fn-t">Start capture</div><div class="fn-s">allow the camera</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 3</div><div class="fn-t">Scan the room</div><div class="fn-s">green boxes = marked</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 4</div><div class="fn-t">Mop up</div><div class="fn-s">mark stragglers manually</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 5</div><div class="fn-t">Close session</div><div class="fn-s">locks the register</div></div>
+    </div>
+  </div>
+  <p style="font-size:9.6pt;color:var(--muted);margin-top:-6px">
+    This is the routine you repeat every lecture. Start the session a minute early so the
+    models finish loading, and always close it at the end &mdash; a session left open can still
+    accept attendance.
+  </p>
+
+  <!-- Flow C -->
+  <div class="flow-title" style="margin-top:26px"><span class="who">Lecturer / Admin</span> Flow C &mdash; End-of-semester reporting</div>
+  <div class="flow">
+    <div class="flow-row">
+      <div class="fnode"><div class="fn-n">STEP 1</div><div class="fn-t">Open reports</div><div class="fn-s">choose the course</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 2</div><div class="fn-t">Check the grid</div><div class="fn-s">P / L / A per lecture</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 3</div><div class="fn-t">Review eligibility</div><div class="fn-s">who is below 75%</div></div>
+      <div class="farrow">&rarr;</div>
+      <div class="fnode"><div class="fn-n">STEP 4</div><div class="fn-t">Export CSV</div><div class="fn-s">file the record</div></div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:28px">A worked example, end to end</h3>
+  <p>Registering one student and marking them present, from a standing start:</p>
+  <table class="compact">
+    <thead><tr><th style="width:38px">#</th><th style="width:30%">Where</th><th>What you do</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Sign in</td><td>Log in as <code>admin@example.edu</code> / <code>admin1234</code></td></tr>
+      <tr><td>2</td><td>Students &rarr; Register student</td><td>Enter <i>CSC/2021/011</i> and the student's name</td></tr>
+      <tr><td>3</td><td>&nbsp;&nbsp;&nbsp;&#8627; Face enrolment</td><td>Turn on the camera, capture 3 samples, <b>Save student</b></td></tr>
+      <tr><td>4</td><td>Courses &rarr; CSC 401</td><td><b>+ Add students</b>, tick the new student, <b>Register 1 student</b></td></tr>
+      <tr><td>5</td><td>&nbsp;&nbsp;&nbsp;&#8627; same page</td><td><b>Start lecture session</b></td></tr>
+      <tr><td>6</td><td>Live capture</td><td><b>Start capture</b>, sit the student in front of the camera</td></tr>
+      <tr><td>7</td><td>&nbsp;&nbsp;&nbsp;&#8627; watch</td><td>Green box appears with their name; <b>Present 1/11</b></td></tr>
+      <tr><td>8</td><td>&nbsp;&nbsp;&nbsp;&#8627; finish</td><td><b>Close session</b>, then check <b>Attendance report</b></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============ 6. USE CASES ============ -->
+<section class="section">
+  <h2 class="sec"><span class="n">6.</span> Use cases</h2>
+  <p class="lead">Ten documented scenarios the platform supports.</p>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-01</span><span class="ttl">Staff authentication</span><span class="actor">Administrator / Lecturer</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Gain access to the attendance platform.</dd>
+      <dt>Steps</dt><dd>Open the site &rarr; enter email and password &rarr; press Sign in.</dd>
+      <dt>Outcome</dt><dd>A signed session cookie is issued, valid for 8 hours; the dashboard opens.</dd>
+      <dt>If it fails</dt><dd>A generic &ldquo;Invalid email or password&rdquo; message is shown &mdash; the system never reveals which field was wrong.</dd>
+    </dl></div></div>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-02</span><span class="ttl">Enrol a student's face</span><span class="actor">Administrator</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Create the biometric template that makes a student recognisable.</dd>
+      <dt>Before</dt><dd>The student is physically present, in good light.</dd>
+      <dt>Steps</dt><dd>Students &rarr; Register student &rarr; enter details &rarr; turn on camera &rarr; capture 3 samples &rarr; Save.</dd>
+      <dt>Outcome</dt><dd>Three 128-number descriptors are stored. The student shows a green <i>3 samples</i> badge.</dd>
+      <dt>Rules</dt><dd>Saving is refused without at least one valid sample, and matriculation numbers must be unique.</dd>
+    </dl></div></div>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-03</span><span class="ttl">Register students on a course</span><span class="actor">Administrator / Lecturer</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Define who belongs in a class, and therefore who can be recognised in its lectures.</dd>
+      <dt>Steps</dt><dd>Courses &rarr; open the course &rarr; + Add students &rarr; tick names &rarr; Register.</dd>
+      <dt>Outcome</dt><dd>Those students become the recognition candidate set for every session of that course.</dd>
+    </dl></div></div>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-04</span><span class="ttl">Start a lecture session</span><span class="actor">Lecturer</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Open a window during which attendance may be recorded.</dd>
+      <dt>Steps</dt><dd>Lecture sessions &rarr; choose course, venue and late cut-off &rarr; Start session.</dd>
+      <dt>Outcome</dt><dd>A session with status <i>open</i> is created and the capture screen opens.</dd>
+      <dt>Rules</dt><dd>A course with no registered students cannot start a session. Only one session per course may be open at a time.</dd>
+    </dl></div></div>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-05</span><span class="ttl">Record attendance by face recognition</span><span class="actor">Lecturer &middot; primary use case</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Mark students present without a roll call.</dd>
+      <dt>Steps</dt><dd>Start capture &rarr; point the camera at students &rarr; watch names appear.</dd>
+      <dt>Outcome</dt><dd>For each recognised face an attendance record is written, timed and stamped <i>present</i> or <i>late</i>.</dd>
+      <dt>Rules</dt><dd>Only students on the course are considered; only within the acceptance threshold; only while the session is open; and only one record per student per session.</dd>
+    </dl></div></div>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-06</span><span class="ttl">Mark a student manually</span><span class="actor">Lecturer</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Record a student the camera cannot recognise &mdash; poor light, no template, a camera failure.</dd>
+      <dt>Steps</dt><dd>On the capture screen, find them under <i>Not yet marked</i> &rarr; press Mark manually.</dd>
+      <dt>Outcome</dt><dd>A record tagged <i>manual</i>, so it stays distinguishable from a biometric one in every report.</dd>
+    </dl></div></div>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-07</span><span class="ttl">Close a session</span><span class="actor">Lecturer</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Freeze the register when the lecture ends.</dd>
+      <dt>Steps</dt><dd>Press Close session on the capture screen or the session list.</dd>
+      <dt>Outcome</dt><dd>Status becomes <i>closed</i> and any further recognition attempt is rejected.</dd>
+    </dl></div></div>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-08</span><span class="ttl">Correct a wrong record</span><span class="actor">Lecturer / Administrator</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Remove an entry captured in error.</dd>
+      <dt>Steps</dt><dd>Open the session register &rarr; press Remove beside the record &rarr; confirm.</dd>
+      <dt>Outcome</dt><dd>The record is deleted and the student returns to the absent list.</dd>
+    </dl></div></div>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-09</span><span class="ttl">Produce an attendance report</span><span class="actor">Lecturer / Administrator</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Determine each student's attendance percentage and exam eligibility.</dd>
+      <dt>Steps</dt><dd>Attendance report &rarr; choose the course &rarr; read the grid &rarr; Export CSV.</dd>
+      <dt>Outcome</dt><dd>A full register with per-student percentages and an eligibility verdict against the course requirement.</dd>
+    </dl></div></div>
+
+  <div class="uc"><div class="uc-hd"><span class="id">UC-10</span><span class="ttl">Create a staff account</span><span class="actor">Administrator</span></div>
+    <div class="uc-bd"><dl>
+      <dt>Goal</dt><dd>Give a new lecturer access to the platform.</dd>
+      <dt>Steps</dt><dd>Staff accounts &rarr; fill in name, email, password and role &rarr; Create account.</dd>
+      <dt>Outcome</dt><dd>The account can sign in immediately and be assigned as a course lecturer.</dd>
+    </dl></div></div>
+</section>
+
+<!-- ============ 7. TROUBLESHOOTING ============ -->
+<section class="section">
+  <h2 class="sec"><span class="n">7.</span> Troubleshooting</h2>
+  <p class="lead">The problems you are most likely to hit, and what to do about them.</p>
+
+  <table>
+    <thead><tr><th style="width:30%">Symptom</th><th style="width:32%">Why it happens</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td><b>The camera button stays greyed out</b></td><td>The face models (~12&nbsp;MB) are still downloading.</td><td>Wait 10&ndash;40 seconds. If it never finishes, reload the page &mdash; a partial download is retried from scratch.</td></tr>
+      <tr><td><b>&ldquo;Camera permission was denied&rdquo;</b></td><td>The browser blocked access, usually from an earlier refusal.</td><td>Click the padlock in the address bar, set Camera to <i>Allow</i>, then reload.</td></tr>
+      <tr><td><b>Nothing happens when you turn the camera on</b></td><td>The page is on an insecure address such as a LAN IP.</td><td>Use the HTTPS live link, or <code>localhost</code> if running it yourself. See section 2.3.</td></tr>
+      <tr><td><b>&ldquo;No face detected&rdquo; during enrolment</b></td><td>Backlighting, or the student is too far away.</td><td>Face the student towards the light, move to about an arm's length, and stay still while capturing.</td></tr>
+      <tr><td><b>A red box &mdash; a real student is not recognised</b></td><td>They have no face template, or are not on this course's class list.</td><td>Check the Students page for a red <i>Not enrolled</i> badge, and the course class list. Mark them manually for now, and re-enrol afterwards.</td></tr>
+      <tr><td><b>Recognised, but marked <i>late</i></b></td><td>They were recognised after the late cut-off for the session.</td><td>Expected behaviour. Set a longer cut-off when starting the session if your lectures fill slowly.</td></tr>
+      <tr><td><b>&ldquo;This session is closed&rdquo;</b></td><td>Attendance cannot be added to a finished lecture.</td><td>Open the session register and press <b>Reopen session</b> if it was closed by mistake.</td></tr>
+      <tr><td><b>&ldquo;This course already has an open session&rdquo;</b></td><td>A previous sitting was never closed.</td><td>The system takes you to that session. Close it, then start a new one.</td></tr>
+      <tr><td><b>&ldquo;Register students on this course first&rdquo;</b></td><td>The class list is empty.</td><td>Open the course and add students before starting a session.</td></tr>
+      <tr><td><b>The report grid is empty</b></td><td>No sessions have been held for that course yet.</td><td>Run at least one lecture session. Only sessions that exist appear as columns.</td></tr>
+      <tr><td><b>Attendance stops being recorded mid-lecture</b></td><td>Capture was paused, or the session was closed in another tab.</td><td>Check for the red <b>SCANNING</b> badge and that the frames counter is climbing.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Known limits of the prototype</h3>
+  <p>Worth stating plainly, especially during a demonstration:</p>
+  <ul class="plain">
+    <li><b>Lighting still matters.</b> In a dim hall the detector finds fewer faces. Manual marking exists for exactly this reason.</li>
+    <li><b>Range is limited.</b> Faces must be reasonably large in frame; one camera at the front will not reach the back of a 300-seat hall.</li>
+    <li><b>There is no liveness detection.</b> A printed photograph held to the camera would pass. Defeating that needs blink or depth sensing, which is outside this prototype's scope.</li>
+    <li><b>The threshold is a trade-off, not a certainty.</b> Stricter settings reject more genuine students; looser settings risk matching the wrong one.</li>
+    <li><b>Matching scales linearly</b> with class size &mdash; fine for tens or low hundreds of students per course.</li>
+  </ul>
+</section>
+
+<!-- ============ 8. QUICK REFERENCE ============ -->
+<section class="section">
+  <h2 class="sec"><span class="n">8.</span> Quick reference card</h2>
+  <p class="lead">Keep this page open during a demonstration.</p>
+
+  <div class="qr">
+    <h3>Sign in</h3>
+    <table class="compact" style="margin-top:6px">
+      <tbody>
+        <tr><td style="width:30%"><b>Live link</b></td><td colspan="2"><code>https://attendace-system-david.vercel.app/</code></td></tr>
+        <tr><td><b>Administrator</b></td><td style="width:35%"><code>admin@example.edu</code></td><td><code>admin1234</code></td></tr>
+        <tr><td><b>Lecturer</b></td><td><code>lecturer@example.edu</code></td><td><code>lecturer1234</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="qr-grid" style="margin-top:18px">
+      <div>
+        <h4>Run a lecture &mdash; 6 steps</h4>
+        <ol class="steps" style="margin-top:6px">
+          <li>Lecture sessions &rarr; pick the course</li>
+          <li>Set venue and late cut-off &rarr; Start session</li>
+          <li>Wait for <b>Start capture</b> to go live &rarr; press it</li>
+          <li>Point the camera; green boxes = marked</li>
+          <li>Mark stragglers manually</li>
+          <li><b>Close session</b></li>
+        </ol>
+      </div>
+      <div>
+        <h4>Enrol a face &mdash; 4 steps</h4>
+        <ol class="steps" style="margin-top:6px">
+          <li>Students &rarr; + Register student</li>
+          <li>Matric number and full name</li>
+          <li>Turn on camera &rarr; capture 3 samples<br>
+              <span style="font-size:8.8pt;color:var(--muted)">straight &middot; slight left &middot; slight right</span></li>
+          <li>Save student</li>
+        </ol>
+
+        <h4 style="margin-top:14px">Box colours</h4>
+        <table class="compact" style="margin-top:4px">
+          <tbody>
+            <tr><td style="width:64px"><span style="display:inline-block;width:44px;height:9px;border-radius:3px;background:#22c55e"></span></td><td>Newly marked</td></tr>
+            <tr><td><span style="display:inline-block;width:44px;height:9px;border-radius:3px;background:#3b82f6"></span></td><td>Already marked</td></tr>
+            <tr><td><span style="display:inline-block;width:44px;height:9px;border-radius:3px;background:#ef4444"></span></td><td>Not recognised</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h4 style="margin-top:18px">Report symbols</h4>
+    <p style="margin:4px 0 0;font-size:9.6pt">
+      <b style="color:var(--green)">P</b> present &nbsp;&middot;&nbsp;
+      <b style="color:var(--amber)">L</b> late &nbsp;&middot;&nbsp;
+      <b style="color:var(--red)">A</b> absent &nbsp;&mdash;&nbsp;
+      the <b>%</b> column is measured against the course requirement (75% by default).
+    </p>
+  </div>
+
+  <div class="box stop" style="margin-top:22px">
+    <b>Before real use</b>
+    Replace the demonstration accounts above with strong passwords under
+    <b>Staff accounts</b>, and remember that students' face templates are personal
+    biometric data &mdash; enrol only with their knowledge and consent.
+  </div>
+</section>
+
+</body>
+</html>

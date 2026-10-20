@@ -4,10 +4,14 @@ import Link from "next/link";
 import { useState } from "react";
 import { useApi, api } from "@/lib/client";
 import { PageHeader, Card, Empty, Badge } from "@/components/ui";
+import { useUser } from "@/components/UserProvider";
 
 export default function CoursesPage() {
+  const { isAdmin } = useUser();
   const { data, loading, error, reload } = useApi("/api/courses");
-  const { data: staff } = useApi("/api/users");
+  // Only admins create courses, so only they need the staff list.
+  const { data: staff } = useApi(isAdmin ? "/api/users" : null);
+  const lecturers = (staff?.users || []).filter((u) => u.role === "lecturer");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
     code: "",
@@ -45,16 +49,22 @@ export default function CoursesPage() {
   return (
     <div>
       <PageHeader
-        title="Courses"
-        subtitle="Courses and the students registered for them."
+        title={isAdmin ? "Courses" : "My courses"}
+        subtitle={
+          isAdmin
+            ? "Create courses, assign a lecturer and register students on them."
+            : "Courses assigned to you by the administrator."
+        }
         action={
-          <button onClick={() => setOpen((o) => !o)} className="btn-primary">
-            {open ? "Close" : "+ New course"}
-          </button>
+          isAdmin && (
+            <button onClick={() => setOpen((o) => !o)} className="btn-primary">
+              {open ? "Close" : "+ New course"}
+            </button>
+          )
         }
       />
 
-      {open && (
+      {isAdmin && open && (
         <Card className="mb-6 p-5">
           <form onSubmit={create} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
@@ -85,7 +95,7 @@ export default function CoursesPage() {
               <label className="label">Lecturer</label>
               <select className="input" value={form.lecturer} onChange={set("lecturer")}>
                 <option value="">Unassigned</option>
-                {(staff?.users || []).map((u) => (
+                {lecturers.map((u) => (
                   <option key={u._id} value={u._id}>{u.name}</option>
                 ))}
               </select>
@@ -121,8 +131,12 @@ export default function CoursesPage() {
 
       {!loading && data?.courses.length === 0 && (
         <Empty
-          title="No courses yet"
-          description="Create a course, register students on it, then start a lecture session."
+          title={isAdmin ? "No courses yet" : "No course assigned to you"}
+          description={
+            isAdmin
+              ? "Create a course, assign its lecturer and register students on it."
+              : "Ask the administrator to assign you as the lecturer of a course."
+          }
         />
       )}
 

@@ -4,7 +4,7 @@ import { ok, fail, handler, requireUser } from "@/lib/api";
 import { isValidDescriptor } from "@/lib/face";
 
 export const GET = handler(async (_req, { params }) => {
-  const auth = await requireUser();
+  const auth = await requireUser(["admin"]);
   if (auth.response) return auth.response;
 
   const { id } = await params;
@@ -51,8 +51,14 @@ export const PATCH = handler(async (req, { params }) => {
   const body = await req.json();
   const update = {};
 
-  for (const field of ["fullName", "email", "department", "level", "isActive", "photo"]) {
+  for (const field of ["matricNo", "fullName", "email", "department", "level", "isActive", "photo"]) {
     if (body[field] !== undefined) update[field] = body[field];
+  }
+  if (update.matricNo !== undefined && !String(update.matricNo).trim()) {
+    return fail("Matriculation number cannot be empty");
+  }
+  if (update.fullName !== undefined && !String(update.fullName).trim()) {
+    return fail("Full name cannot be empty");
   }
 
   // Re-enrolling replaces the stored templates outright rather than appending,
@@ -64,7 +70,10 @@ export const PATCH = handler(async (req, { params }) => {
     update.faceDescriptors = body.faceDescriptors;
   }
 
-  const student = await Student.findByIdAndUpdate(id, update, { new: true });
+  const student = await Student.findByIdAndUpdate(id, update, {
+    new: true,
+    runValidators: true,
+  });
   if (!student) return fail("Student not found", 404);
   return ok({ success: true });
 });

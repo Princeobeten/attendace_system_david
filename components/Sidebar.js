@@ -4,14 +4,25 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: "▤" },
-  { href: "/students", label: "Students", icon: "👥" },
-  { href: "/courses", label: "Courses", icon: "📚" },
-  { href: "/sessions", label: "Lecture sessions", icon: "🎥" },
-  { href: "/reports", label: "Attendance report", icon: "📊" },
-  { href: "/staff", label: "Staff accounts", icon: "🔑", adminOnly: true },
-];
+// Admins maintain records; lecturers run classes and take attendance.
+const NAV = {
+  admin: [
+    { href: "/dashboard", label: "Dashboard", icon: "▤" },
+    { href: "/students", label: "Students", icon: "👥" },
+    { href: "/courses", label: "Courses", icon: "📚" },
+    { href: "/staff", label: "Staff accounts", icon: "🔑" },
+    { href: "/sessions", label: "Session monitor", icon: "🎥" },
+    { href: "/reports", label: "Attendance reports", icon: "📊" },
+  ],
+  lecturer: [
+    { href: "/dashboard", label: "Dashboard", icon: "▤" },
+    { href: "/courses", label: "My courses", icon: "📚" },
+    { href: "/sessions", label: "My lecture sessions", icon: "🎥" },
+    { href: "/reports", label: "Attendance reports", icon: "📊" },
+  ],
+};
+
+const PORTAL = { admin: "Administrator portal", lecturer: "Lecturer portal" };
 
 export default function Sidebar({ user }) {
   const pathname = usePathname();
@@ -24,7 +35,8 @@ export default function Sidebar({ user }) {
     router.refresh();
   }
 
-  const links = NAV.filter((n) => !n.adminOnly || user.role === "admin");
+  const links = NAV[user.role] || NAV.lecturer;
+  const isAdmin = user.role === "admin";
 
   return (
     <>
@@ -51,6 +63,14 @@ export default function Sidebar({ user }) {
           </span>
           FaceTrack
         </div>
+
+        <p
+          className={`mx-5 mb-3 rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
+            isAdmin ? "bg-amber-50 text-amber-800" : "bg-emerald-50 text-emerald-800"
+          }`}
+        >
+          {PORTAL[user.role] || PORTAL.lecturer}
+        </p>
 
         <nav className="flex-1 space-y-1 px-3 py-2">
           {links.map((item) => {

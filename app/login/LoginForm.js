@@ -3,8 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const PORTALS = {
+  lecturer: {
+    label: "Lecturer",
+    title: "Lecturer sign in",
+    blurb: "Start your lecture sessions, take attendance by face and view your course reports.",
+    placeholder: "lecturer@example.edu",
+  },
+  admin: {
+    label: "Administrator",
+    title: "Administrator sign in",
+    blurb: "Register students, enrol faces, set up courses and manage staff accounts.",
+    placeholder: "admin@example.edu",
+  },
+};
+
 export default function LoginForm() {
   const router = useRouter();
+  const [portal, setPortal] = useState("lecturer");
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -17,7 +33,7 @@ export default function LoginForm() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, portal }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Sign in failed");
@@ -40,10 +56,30 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <h2 className="text-2xl font-bold text-slate-900">Staff sign in</h2>
-      <p className="mt-1 text-sm text-slate-500">
-        Lecturers and administrators only. Students are identified by face.
-      </p>
+      <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1" role="tablist">
+        {Object.entries(PORTALS).map(([key, p]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={portal === key}
+            onClick={() => {
+              setPortal(key);
+              setError("");
+            }}
+            className={`rounded-lg px-3 py-2 text-sm font-semibold transition ${
+              portal === key
+                ? "bg-white text-brand-700 shadow-sm"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      <h2 className="text-2xl font-bold text-slate-900">{PORTALS[portal].title}</h2>
+      <p className="mt-1 text-sm text-slate-500">{PORTALS[portal].blurb}</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <div>
@@ -56,7 +92,7 @@ export default function LoginForm() {
             required
             autoComplete="username"
             className="input"
-            placeholder="lecturer@example.edu"
+            placeholder={PORTALS[portal].placeholder}
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
@@ -85,7 +121,7 @@ export default function LoginForm() {
         )}
 
         <button type="submit" disabled={loading} className="btn-primary w-full">
-          {loading ? "Signing in…" : "Sign in"}
+          {loading ? "Signing in…" : `Sign in as ${PORTALS[portal].label.toLowerCase()}`}
         </button>
       </form>
 

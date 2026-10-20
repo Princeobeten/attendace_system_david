@@ -1,9 +1,9 @@
 import { Course } from "@/models";
 import { ok, fail, handler, requireUser } from "@/lib/api";
 
-/** Register students on a course. */
+/** Register students on a course (admin only — lecturers cannot change the class list). */
 export const POST = handler(async (req, { params }) => {
-  const auth = await requireUser(["admin", "lecturer"]);
+  const auth = await requireUser(["admin"]);
   if (auth.response) return auth.response;
 
   const { id } = await params;
@@ -24,7 +24,7 @@ export const POST = handler(async (req, { params }) => {
 
 /** Remove a student from a course. */
 export const DELETE = handler(async (req, { params }) => {
-  const auth = await requireUser(["admin", "lecturer"]);
+  const auth = await requireUser(["admin"]);
   if (auth.response) return auth.response;
 
   const { id } = await params;

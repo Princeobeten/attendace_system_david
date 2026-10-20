@@ -5,8 +5,10 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useApi, api, formatDate, downloadCsv } from "@/lib/client";
 import { PageHeader, Card, Stat, Empty, Badge } from "@/components/ui";
+import { useUser } from "@/components/UserProvider";
 
 export default function ReportsClient() {
+  const { isAdmin } = useUser();
   const params = useSearchParams();
   const router = useRouter();
   const { data: courseData } = useApi("/api/courses");
@@ -85,7 +87,14 @@ export default function ReportsClient() {
       </div>
 
       {courses.length === 0 && (
-        <Empty title="No courses" description="Create a course first." />
+        <Empty
+          title="No courses"
+          description={
+            isAdmin
+              ? "Create a course first."
+              : "No course has been assigned to you yet."
+          }
+        />
       )}
       {loading && <p className="text-sm text-slate-500">Building report…</p>}
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -147,12 +156,18 @@ export default function ReportsClient() {
                     {report.rows.map((r) => (
                       <tr key={r.student._id} className="hover:bg-slate-50">
                         <td className="td">
-                          <Link
-                            href={`/students/${r.student._id}`}
-                            className="font-medium text-slate-900 hover:text-brand-700"
-                          >
-                            {r.student.fullName}
-                          </Link>
+                          {isAdmin ? (
+                            <Link
+                              href={`/students/${r.student._id}`}
+                              className="font-medium text-slate-900 hover:text-brand-700"
+                            >
+                              {r.student.fullName}
+                            </Link>
+                          ) : (
+                            <span className="font-medium text-slate-900">
+                              {r.student.fullName}
+                            </span>
+                          )}
                         </td>
                         <td className="td font-mono text-xs">{r.student.matricNo}</td>
                         {r.marks.map((m, i) => (

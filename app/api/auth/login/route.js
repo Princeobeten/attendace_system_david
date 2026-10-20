@@ -5,7 +5,7 @@ import { signToken, setAuthCookie } from "@/lib/auth";
 import { ok, fail, handler } from "@/lib/api";
 
 export const POST = handler(async (req) => {
-  const { email, password } = await req.json();
+  const { email, password, portal } = await req.json();
   if (!email || !password) return fail("Email and password are required");
 
   await connectDB();
@@ -17,6 +17,12 @@ export const POST = handler(async (req) => {
 
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return fail("Invalid email or password", 401);
+
+  // Admins and lecturers sign in through separate portals.
+  if (portal && portal !== user.role) {
+    const other = user.role === "admin" ? "Administrator" : "Lecturer";
+    return fail(`This is ${user.role === "admin" ? "an" : "a"} ${other.toLowerCase()} account. Use the ${other} sign-in tab.`, 403);
+  }
 
   const token = await signToken({
     sub: user._id.toString(),

@@ -171,11 +171,15 @@ export default function CaptureScreen({ sessionId }) {
     if (!confirm("Close this session? No further attendance can be captured.")) return;
     setRunning(false);
     stop();
-    await api(`/api/sessions/${sessionId}`, {
-      method: "PATCH",
-      body: { status: "closed" },
-    });
-    router.push(`/sessions/${sessionId}`);
+    try {
+      await api(`/api/sessions/${sessionId}`, {
+        method: "PATCH",
+        body: { status: "closed" },
+      });
+      router.push(`/sessions/${sessionId}`);
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   const total = records.length + absent.length;

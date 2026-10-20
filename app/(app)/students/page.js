@@ -56,6 +56,7 @@ export default function StudentsPage() {
                   <th className="th">Department</th>
                   <th className="th">Level</th>
                   <th className="th">Face template</th>
+                  <th className="th"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -81,6 +82,14 @@ export default function StudentsPage() {
                       ) : (
                         <Badge tone="red">Not enrolled</Badge>
                       )}
+                    </td>
+                    <td className="td text-right">
+                      <Link
+                        href={`/students/${s._id}`}
+                        className="text-xs font-medium text-brand-600 hover:underline"
+                      >
+                        View / edit
+                      </Link>
                     </td>
                   </tr>
                 ))}

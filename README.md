@@ -48,7 +48,17 @@ biometric data far safer than storing face images.
 
 ---
 
-## 2. Getting started
+## 2. Live deployment & user guide
+
+- **Live application:** <https://attendace-system-david.vercel.app/>
+- **User guide (PDF):** [`docs/FaceTrack-User-Guide.pdf`](docs/FaceTrack-User-Guide.pdf) —
+  a 24-page step-by-step walkthrough with screenshots, user flows, use cases,
+  sign-in credentials and troubleshooting. Its source is in
+  [`docs/user-guide-source/`](docs/user-guide-source/).
+
+---
+
+## 3. Getting started
 
 ### Requirements
 - Node.js 18.18 or newer (developed on Node 22)
@@ -64,12 +74,15 @@ npm run seed -- --demo    # staff accounts, students, courses, sample history
 npm run dev
 ```
 
-Open <http://localhost:3000> and sign in with a seeded account:
+Open <http://localhost:3000>, pick the **Administrator** or **Lecturer** tab on
+the sign-in screen, and use the matching seeded account:
 
-| Email | Password | Role |
+| Email | Password | Sign-in tab |
 |---|---|---|
 | `admin@example.edu` | `admin1234` | Administrator |
 | `lecturer@example.edu` | `lecturer1234` | Lecturer |
+
+An account can only sign in through its own tab.
 
 > Change these before showing the system to anyone outside your defence.
 
@@ -93,15 +106,34 @@ lecturer's own machine, or put it behind HTTPS.
 
 ---
 
-## 3. Using the system
+## 4. Using the system
+
+The system has two portals with separate duties. The server enforces them, so
+hiding a button is never the only protection.
+
+| | Administrator (department officer) | Lecturer |
+|---|---|---|
+| Students | Register, edit details, re-enrol face, delete | — |
+| Courses | Create, edit, assign lecturer, register students | View the courses assigned to them |
+| Staff accounts | Create lecturer and admin accounts | — |
+| Lecture sessions | Monitor every session (read-only) | Start, capture, mark manually, close — own courses only |
+| Reports | Every course | Own courses only |
+
+**Administrator** sets the system up:
 
 1. **Register a student** — *Students → Register student*. Fill in the matric
    number and name, turn on the camera and capture **3 samples** (straight on,
    slightly left, slightly right). Multiple samples make recognition far more
-   tolerant of head pose in a real lecture hall.
-2. **Create a course** — *Courses → New course*, then open it and
-   **Add students**. Only registered students are recognition candidates.
-3. **Start a lecture session** — *Lecture sessions*, choose the course, set the
+   tolerant of head pose in a real lecture hall. A mistake in the details (for
+   example a mistyped matric number) is corrected from the student's page with
+   **Edit details**; the face templates and attendance history are kept.
+2. **Create a course** — *Courses → New course*, assign its **lecturer**, then
+   open it and **Add students**. Only registered students are recognition
+   candidates.
+
+**Lecturer** runs the class:
+
+3. **Start a lecture session** — *My lecture sessions*, choose the course, set the
    venue and how many minutes late counts as "late", then start. This opens the
    live capture screen.
 4. **Capture attendance** — press **Start capture**. The camera scans every
@@ -120,7 +152,7 @@ lecturer's own machine, or put it behind HTTPS.
 
 ---
 
-## 4. How recognition works
+## 5. How recognition works
 
 1. **Detection** — the browser runs *SSD MobileNet V1* (enrolment, accurate) or
    *Tiny Face Detector* (live capture, fast) to find faces in the frame.
@@ -158,7 +190,7 @@ does not, and putting it on the server means:
 
 ---
 
-## 5. Data model
+## 6. Data model
 
 | Collection | Purpose | Notable fields |
 |---|---|---|
@@ -178,7 +210,7 @@ Two constraints carry most of the integrity guarantees:
 
 ---
 
-## 6. Project structure
+## 7. Project structure
 
 ```
 app/
@@ -225,7 +257,7 @@ scripts/seed.mjs         database seeding
 
 ---
 
-## 7. Known limitations
+## 8. Known limitations
 
 Honest boundaries of the prototype, matching Chapter 1.5 and the gaps
 identified in Chapter 2.4:
@@ -248,7 +280,7 @@ identified in Chapter 2.4:
 
 ---
 
-## 8. Scripts
+## 9. Scripts
 
 ```bash
 npm run dev      # development server
