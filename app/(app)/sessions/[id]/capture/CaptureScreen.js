@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api, formatTime } from "@/lib/client";
 import { useWebcam } from "@/lib/useWebcam";
-import { loadModels, detectAllFaces } from "@/lib/faceapi";
+import { loadModels, detectAllFaces, engineInfo } from "@/lib/faceapi";
 import { Avatar, Badge } from "@/components/ui";
 
 /** How often a frame is analysed. Lower = more responsive, more CPU. */
@@ -18,6 +18,7 @@ export default function CaptureScreen({ sessionId }) {
   const overlayRef = useRef(null);
   const scanning = useRef(false);
   const loopRef = useRef(null);
+  const emptyFrames = useRef(0);
 
   const [modelStatus, setModelStatus] = useState("Loading models…");
   const [modelsReady, setModelsReady] = useState(false);
@@ -110,10 +111,12 @@ export default function CaptureScreen({ sessionId }) {
     scanning.current = true;
 
     try {
-      const faces = await detectAllFaces(video);
+      // Every third empty frame, retry with the slower but more thorough detector.
+      const faces = await detectAllFaces(video, { thorough: emptyFrames.current % 3 === 2 });
       setStats((s) => ({ frames: s.frames + 1, faces: s.faces + faces.length }));
 
       if (faces.length === 0) {
+        emptyFrames.current += 1;
         draw([]);
         setLastResults([]);
         return;
@@ -288,6 +291,7 @@ export default function CaptureScreen({ sessionId }) {
 
               <span className="ml-auto text-xs text-slate-500">
                 {stats.frames} frames scanned · {stats.faces} faces seen
+                {modelsReady && (engineInfo().accelerated ? " · GPU" : " · CPU mode (slower)")}
               </span>
             </div>
           </div>

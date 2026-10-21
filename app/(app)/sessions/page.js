@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useApi, api, formatDate } from "@/lib/client";
 import { PageHeader, Card, Empty, Badge } from "@/components/ui";
 import { useUser } from "@/components/UserProvider";
+import { SelectField } from "@/components/fields";
+import { VENUES, LATE_AFTER_MINUTES } from "@/lib/catalog";
 
 export default function SessionsPage() {
   const router = useRouter();
@@ -73,27 +75,22 @@ export default function SessionsPage() {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="label">Venue</label>
-              <input
-                className="input"
-                placeholder="e.g. LT1"
-                value={form.venue}
-                onChange={(e) => setForm({ ...form, venue: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="label">Late after (mins)</label>
-              <input
-                className="input"
-                type="number"
-                min="0"
-                value={form.lateAfterMinutes}
-                onChange={(e) =>
-                  setForm({ ...form, lateAfterMinutes: Number(e.target.value) })
-                }
-              />
-            </div>
+            <SelectField
+              label="Venue"
+              required
+              value={form.venue}
+              onChange={(venue) => setForm({ ...form, venue })}
+              placeholder="Select venue"
+              options={VENUES}
+            />
+            <SelectField
+              label="Mark late after"
+              required
+              value={String(form.lateAfterMinutes)}
+              onChange={(v) => setForm({ ...form, lateAfterMinutes: Number(v) })}
+              placeholder="Select"
+              options={LATE_AFTER_MINUTES.map((m) => ({ value: String(m), label: `${m} minutes` }))}
+            />
             <div className="sm:col-span-4">
               <button type="submit" disabled={busy} className="btn-primary">
                 {busy ? "Starting…" : "Start session & open camera"}

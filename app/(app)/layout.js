@@ -7,7 +7,8 @@ export default async function AppLayout({ children }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const profile = { name: user.name, email: user.email, role: user.role };
+  // Students sign in with a matric number rather than an email address.
+  const profile = { name: user.name, email: user.email || user.matricNo, role: user.role };
 
   return (
     <UserProvider user={profile}>

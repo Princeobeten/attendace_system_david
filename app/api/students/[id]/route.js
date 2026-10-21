@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 import { Student, Attendance, Course } from "@/models";
 import { ok, fail, handler, requireUser } from "@/lib/api";
-import { isValidDescriptor } from "@/lib/face";
 
 export const GET = handler(async (_req, { params }) => {
   const auth = await requireUser(["admin"]);
@@ -15,15 +15,21 @@ export const GET = handler(async (_req, { params }) => {
   const [student] = await Student.aggregate([
     { $match: { _id: new mongoose.Types.ObjectId(id) } },
     {
+      $lookup: {
+        from: "users",
+        localField: "identityCheck.verifiedBy",
+        foreignField: "_id",
+        as: "verifier",
+        pipeline: [{ $project: { name: 1 } }],
+      },
+    },
+    {
       $project: {
-        matricNo: 1,
-        fullName: 1,
-        email: 1,
-        department: 1,
-        level: 1,
-        photo: 1,
-        isActive: 1,
-        createdAt: 1,
+        matricNo: 1, fullName: 1, email: 1, phone: 1, gender: 1, faculty: 1,
+        department: 1, level: 1, entryYear: 1, jambRegNo: 1, passportPhoto: 1,
+        photo: 1, isActive: 1, registeredOnline: 1, createdAt: 1, identityCheck: 1,
+        verifiedByName: { $first: "$verifier.name" },
+        hasPassword: { $gt: [{ $strLenCP: { $ifNull: ["$password", ""] } }, 0] },
         faceSamples: { $size: { $ifNull: ["$faceDescriptors", []] } },
       },
     },
@@ -43,6 +49,12 @@ export const GET = handler(async (_req, { params }) => {
   return ok({ student, courses, attendance });
 });
 
+const EDITABLE = [
+  "matricNo", "fullName", "email", "phone", "gender", "faculty",
+  "department", "level", "entryYear", "jambRegNo", "isActive",
+];
+
+/** Correct a student's details. Faces are enrolled through ./enrol instead. */
 export const PATCH = handler(async (req, { params }) => {
   const auth = await requireUser(["admin"]);
   if (auth.response) return auth.response;
@@ -51,7 +63,7 @@ export const PATCH = handler(async (req, { params }) => {
   const body = await req.json();
   const update = {};
 
-  for (const field of ["matricNo", "fullName", "email", "department", "level", "isActive", "photo"]) {
+  for (const field of EDITABLE) {
     if (body[field] !== undefined) update[field] = body[field];
   }
   if (update.matricNo !== undefined && !String(update.matricNo).trim()) {
@@ -60,14 +72,10 @@ export const PATCH = handler(async (req, { params }) => {
   if (update.fullName !== undefined && !String(update.fullName).trim()) {
     return fail("Full name cannot be empty");
   }
-
-  // Re-enrolling replaces the stored templates outright rather than appending,
-  // so a bad enrolment can always be corrected.
-  if (body.faceDescriptors) {
-    if (!body.faceDescriptors.every(isValidDescriptor)) {
-      return fail("One of the face samples is malformed — please recapture");
-    }
-    update.faceDescriptors = body.faceDescriptors;
+  // Lets the admin office reset a forgotten password.
+  if (body.newPassword) {
+    if (String(body.newPassword).length < 6) return fail("Password must be at least 6 characters");
+    update.password = await bcrypt.hash(String(body.newPassword), 10);
   }
 
   const student = await Student.findByIdAndUpdate(id, update, {

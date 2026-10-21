@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useApi, api, formatDate } from "@/lib/client";
 import { useUser } from "@/components/UserProvider";
 import { PageHeader, Card, Avatar, Badge } from "@/components/ui";
+import CourseForm from "@/components/CourseForm";
 
 export default function CoursePage({ params }) {
   const { id } = use(params);
@@ -280,95 +281,20 @@ export default function CoursePage({ params }) {
 /** Admin: correct course details and (re)assign its lecturer. */
 function EditCourseForm({ course, onSaved }) {
   const { data: staff } = useApi("/api/users");
-  const lecturers = (staff?.users || []).filter((u) => u.role === "lecturer");
-  const [form, setForm] = useState({
-    code: course.code || "",
-    title: course.title || "",
-    level: course.level || "",
-    unit: course.unit ?? 3,
-    department: course.department || "",
-    lecturer: course.lecturer?._id || "",
-    requiredAttendance: course.requiredAttendance ?? 75,
-  });
-  const [error, setError] = useState("");
-  const [saving, setSaving] = useState(false);
-
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
-
-  async function onSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setSaving(true);
-    try {
-      await api(`/api/courses/${course._id}`, {
-        method: "PATCH",
-        body: {
-          ...form,
-          unit: Number(form.unit),
-          requiredAttendance: Number(form.requiredAttendance),
-        },
-      });
-      onSaved();
-    } catch (err) {
-      setError(err.message);
-      setSaving(false);
-    }
-  }
+  if (!staff) return <Card className="mb-6 p-5 text-sm text-slate-500">Loading…</Card>;
+  const lecturers = staff.users.filter((u) => u.role === "lecturer");
 
   return (
     <Card className="mb-6 p-5">
-      <form onSubmit={onSubmit} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div>
-          <label className="label">Course code *</label>
-          <input className="input" required value={form.code} onChange={set("code")} />
-        </div>
-        <div className="sm:col-span-2">
-          <label className="label">Course title *</label>
-          <input className="input" required value={form.title} onChange={set("title")} />
-        </div>
-        <div>
-          <label className="label">Level</label>
-          <select className="input" value={form.level} onChange={set("level")}>
-            <option value="">Select level</option>
-            {["100", "200", "300", "400", "500"].map((l) => (
-              <option key={l} value={l}>{l} Level</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="label">Credit unit</label>
-          <input className="input" type="number" min="1" max="9"
-            value={form.unit} onChange={set("unit")} />
-        </div>
-        <div>
-          <label className="label">Lecturer</label>
-          <select className="input" value={form.lecturer} onChange={set("lecturer")}>
-            <option value="">Unassigned</option>
-            {lecturers.map((u) => (
-              <option key={u._id} value={u._id}>{u.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="label">Department</label>
-          <input className="input" value={form.department} onChange={set("department")} />
-        </div>
-        <div>
-          <label className="label">Required attendance (%)</label>
-          <input className="input" type="number" min="0" max="100"
-            value={form.requiredAttendance} onChange={set("requiredAttendance")} />
-        </div>
-        <div className="flex items-end">
-          <button type="submit" disabled={saving} className="btn-primary">
-            {saving ? "Saving…" : "Save changes"}
-          </button>
-        </div>
-        {error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 sm:col-span-2 lg:col-span-3">
-            {error}
-          </p>
-        )}
-      </form>
+      <CourseForm
+        initial={course}
+        lecturers={lecturers}
+        submitLabel="Save changes"
+        onSubmit={async (changes) => {
+          await api(`/api/courses/${course._id}`, { method: "PATCH", body: changes });
+          onSaved();
+        }}
+      />
     </Card>
   );
 }

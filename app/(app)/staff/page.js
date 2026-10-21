@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { useApi, api } from "@/lib/client";
 import { PageHeader, Card, Badge } from "@/components/ui";
+import { SelectField } from "@/components/fields";
+import { DEPARTMENTS, STAFF_TITLES } from "@/lib/catalog";
 
 export default function StaffPage() {
   const { data, loading, error, reload } = useApi("/api/users");
   const [form, setForm] = useState({
+    title: "",
     name: "",
     email: "",
     password: "",
@@ -24,8 +27,12 @@ export default function StaffPage() {
     setFormError("");
     setSaving(true);
     try {
-      await api("/api/users", { method: "POST", body: form });
-      setForm({ name: "", email: "", password: "", role: "lecturer", staffId: "", department: "" });
+      const { title, ...rest } = form;
+      await api("/api/users", {
+        method: "POST",
+        body: { ...rest, name: title ? `${title} ${rest.name.trim()}` : rest.name },
+      });
+      setForm({ title: "", name: "", email: "", password: "", role: "lecturer", staffId: "", department: "" });
       reload();
     } catch (err) {
       setFormError(err.message);
@@ -38,16 +45,20 @@ export default function StaffPage() {
     <div>
       <PageHeader
         title="Staff accounts"
-        subtitle="Lecturers and administrators who can sign in and take attendance."
+        subtitle="Lecturers take attendance for their courses; administrators verify students and manage records."
       />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="p-5">
           <h2 className="mb-4 font-semibold text-slate-900">Add staff account</h2>
           <form onSubmit={create} className="space-y-4">
-            <div>
-              <label className="label">Full name *</label>
-              <input className="input" required value={form.name} onChange={set("name")} />
+            <div className="grid grid-cols-[6.5rem_1fr] gap-3">
+              <SelectField label="Title" value={form.title} placeholder="—"
+                options={STAFF_TITLES} onChange={(v) => setForm({ ...form, title: v })} />
+              <div>
+                <label className="label">Full name *</label>
+                <input className="input" required value={form.name} onChange={set("name")} />
+              </div>
             </div>
             <div>
               <label className="label">Email *</label>
@@ -77,10 +88,8 @@ export default function StaffPage() {
                 <input className="input" value={form.staffId} onChange={set("staffId")} />
               </div>
             </div>
-            <div>
-              <label className="label">Department</label>
-              <input className="input" value={form.department} onChange={set("department")} />
-            </div>
+            <SelectField label="Department" value={form.department} placeholder="Select department"
+              options={DEPARTMENTS.map((d) => d.name)} onChange={(v) => setForm({ ...form, department: v })} />
 
             {formError && (
               <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">

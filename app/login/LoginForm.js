@@ -1,26 +1,39 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const PORTALS = {
+  student: {
+    label: "Student",
+    title: "Student sign in",
+    blurb: "See your registration status, register your courses and check your attendance.",
+    idLabel: "Matric number",
+    idType: "text",
+    placeholder: "CSC/2021/001",
+  },
   lecturer: {
     label: "Lecturer",
     title: "Lecturer sign in",
     blurb: "Start your lecture sessions, take attendance by face and view your course reports.",
+    idLabel: "Email address",
+    idType: "email",
     placeholder: "lecturer@example.edu",
   },
   admin: {
     label: "Administrator",
     title: "Administrator sign in",
-    blurb: "Register students, enrol faces, set up courses and manage staff accounts.",
+    blurb: "Verify students, enrol faces, set up courses and manage staff accounts.",
+    idLabel: "Email address",
+    idType: "email",
     placeholder: "admin@example.edu",
   },
 };
 
 export default function LoginForm() {
   const router = useRouter();
-  const [portal, setPortal] = useState("lecturer");
+  const [portal, setPortal] = useState("student");
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -56,7 +69,7 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-slate-100 p-1" role="tablist">
+      <div className="mb-6 grid grid-cols-3 gap-1 rounded-xl bg-slate-100 p-1" role="tablist">
         {Object.entries(PORTALS).map(([key, p]) => (
           <button
             key={key}
@@ -84,11 +97,11 @@ export default function LoginForm() {
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <div>
           <label className="label" htmlFor="email">
-            Email address
+            {PORTALS[portal].idLabel}
           </label>
           <input
             id="email"
-            type="email"
+            type={PORTALS[portal].idType}
             required
             autoComplete="username"
             className="input"
@@ -124,6 +137,15 @@ export default function LoginForm() {
           {loading ? "Signing in…" : `Sign in as ${PORTALS[portal].label.toLowerCase()}`}
         </button>
       </form>
+
+      {portal === "student" && (
+        <p className="mt-6 text-center text-sm text-slate-600">
+          New student?{" "}
+          <Link href="/register" className="font-semibold text-brand-600 hover:underline">
+            Create your account
+          </Link>
+        </p>
+      )}
 
       <p className="mt-6 rounded-lg bg-slate-100 px-3 py-2 text-xs text-slate-600">
         Demo accounts are created by <code className="font-mono">npm run seed</code>.

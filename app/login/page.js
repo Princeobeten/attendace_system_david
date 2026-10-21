@@ -28,6 +28,7 @@ export default async function LoginPage() {
 
           <ul className="mt-8 space-y-3 text-sm text-brand-100">
             {[
+              "Students register online — faces are enrolled in person after an ID check",
               "Contactless recognition — no queues, no roll call",
               "One record per student per lecture, enforced by the database",
               "Attendance percentage and exam eligibility computed for you",

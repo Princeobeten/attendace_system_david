@@ -1,7 +1,10 @@
 import { Student } from "@/models";
-import { ok, fail, handler, requireUser } from "@/lib/api";
-import { isValidDescriptor } from "@/lib/face";
+import { ok, handler, requireUser } from "@/lib/api";
 
+/**
+ * The student roll. Students create their own records online
+ * (POST /api/auth/register); the admin verifies and enrols them.
+ */
 export const GET = handler(async (req) => {
   const auth = await requireUser(["admin"]);
   if (auth.response) return auth.response;
@@ -28,9 +31,12 @@ export const GET = handler(async (req) => {
         email: 1,
         department: 1,
         level: 1,
+        jambRegNo: 1,
         photo: 1,
         isActive: 1,
+        registeredOnline: 1,
         createdAt: 1,
+        verifiedAt: "$identityCheck.verifiedAt",
         faceSamples: { $size: { $ifNull: ["$faceDescriptors", []] } },
       },
     },
@@ -38,35 +44,4 @@ export const GET = handler(async (req) => {
   ]);
 
   return ok({ students });
-});
-
-export const POST = handler(async (req) => {
-  const auth = await requireUser(["admin"]);
-  if (auth.response) return auth.response;
-
-  const body = await req.json();
-  const { matricNo, fullName, email, department, level, photo } = body;
-  const descriptors = body.faceDescriptors || [];
-
-  if (!matricNo || !fullName) {
-    return fail("Matriculation number and full name are required");
-  }
-  if (!Array.isArray(descriptors) || descriptors.length === 0) {
-    return fail("Capture at least one face sample before saving");
-  }
-  if (!descriptors.every(isValidDescriptor)) {
-    return fail("One of the face samples is malformed — please recapture");
-  }
-
-  const student = await Student.create({
-    matricNo,
-    fullName,
-    email,
-    department,
-    level,
-    photo,
-    faceDescriptors: descriptors,
-  });
-
-  return ok({ student: { id: student._id, matricNo, fullName } }, { status: 201 });
 });

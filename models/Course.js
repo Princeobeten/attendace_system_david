@@ -11,6 +11,7 @@ const CourseSchema = new mongoose.Schema(
     },
     title: { type: String, required: true, trim: true },
     level: { type: String, trim: true },
+    semester: { type: String, trim: true },
     unit: { type: Number, default: 3 },
     department: { type: String, trim: true },
     lecturer: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

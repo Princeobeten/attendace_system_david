@@ -38,7 +38,7 @@ export const PATCH = handler(async (req, { params }) => {
   const body = await req.json();
   const $set = {};
   const $unset = {};
-  for (const f of ["code", "title", "level", "unit", "department", "lecturer", "requiredAttendance"]) {
+  for (const f of ["code", "title", "level", "semester", "unit", "department", "lecturer", "requiredAttendance"]) {
     if (body[f] === undefined) continue;
     // An emptied field (e.g. "Unassigned" lecturer) is removed, not kept.
     if (body[f] === "" || body[f] === null) $unset[f] = 1;

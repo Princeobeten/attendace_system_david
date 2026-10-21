@@ -26,7 +26,7 @@ export const POST = handler(async (req) => {
   const auth = await requireUser(["admin"]);
   if (auth.response) return auth.response;
 
-  const { code, title, level, unit, department, lecturer, requiredAttendance } =
+  const { code, title, level, semester, unit, department, lecturer, requiredAttendance } =
     await req.json();
 
   if (!code || !title) return fail("Course code and title are required");
@@ -35,6 +35,7 @@ export const POST = handler(async (req) => {
     code,
     title,
     level,
+    semester,
     unit,
     department,
     lecturer: lecturer || undefined,

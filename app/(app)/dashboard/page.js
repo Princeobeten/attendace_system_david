@@ -4,8 +4,14 @@ import Link from "next/link";
 import { useApi, formatDate } from "@/lib/client";
 import { useUser } from "@/components/UserProvider";
 import { Stat, PageHeader, Card, Avatar, Badge } from "@/components/ui";
+import StudentDashboard from "./StudentDashboard";
 
 export default function DashboardPage() {
+  const { role } = useUser();
+  return role === "student" ? <StudentDashboard /> : <StaffDashboard />;
+}
+
+function StaffDashboard() {
   const { data, loading, error } = useApi("/api/dashboard");
   const { name } = useUser();
 
@@ -31,11 +37,11 @@ function AdminDashboard({ data, name }) {
     <div>
       <PageHeader
         title="Administrator dashboard"
-        subtitle={`Welcome, ${name}. Keep student records, courses and staff accounts up to date.`}
+        subtitle={`Welcome, ${name}. Verify students, keep records, courses and staff accounts up to date.`}
         action={
           <div className="flex flex-wrap gap-2">
-            <Link href="/students/new" className="btn-primary">
-              + Register student
+            <Link href="/students" className="btn-primary">
+              Verify students{enrolmentGap > 0 ? ` (${enrolmentGap})` : ""}
             </Link>
             <Link href="/courses" className="btn-ghost">
               Manage courses
@@ -53,8 +59,8 @@ function AdminDashboard({ data, name }) {
           value={stats.students}
           hint={
             enrolmentGap > 0
-              ? `${enrolmentGap} without a face template`
-              : "All faces enrolled"
+              ? `${enrolmentGap} awaiting verification`
+              : "All verified & enrolled"
           }
           tone={enrolmentGap > 0 ? "amber" : "green"}
         />

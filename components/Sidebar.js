@@ -20,9 +20,24 @@ const NAV = {
     { href: "/sessions", label: "My lecture sessions", icon: "🎥" },
     { href: "/reports", label: "Attendance reports", icon: "📊" },
   ],
+  student: [
+    { href: "/dashboard", label: "Dashboard", icon: "▤" },
+    { href: "/my-courses", label: "Course registration", icon: "📚" },
+    { href: "/my-attendance", label: "My attendance", icon: "📊" },
+  ],
 };
 
-const PORTAL = { admin: "Administrator portal", lecturer: "Lecturer portal" };
+const PORTAL = {
+  admin: "Administrator portal",
+  lecturer: "Lecturer portal",
+  student: "Student portal",
+};
+
+const PORTAL_STYLE = {
+  admin: "bg-amber-50 text-amber-800",
+  lecturer: "bg-emerald-50 text-emerald-800",
+  student: "bg-sky-50 text-sky-800",
+};
 
 export default function Sidebar({ user }) {
   const pathname = usePathname();
@@ -36,7 +51,6 @@ export default function Sidebar({ user }) {
   }
 
   const links = NAV[user.role] || NAV.lecturer;
-  const isAdmin = user.role === "admin";
 
   return (
     <>
@@ -66,7 +80,7 @@ export default function Sidebar({ user }) {
 
         <p
           className={`mx-5 mb-3 rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-wide ${
-            isAdmin ? "bg-amber-50 text-amber-800" : "bg-emerald-50 text-emerald-800"
+            PORTAL_STYLE[user.role] || PORTAL_STYLE.lecturer
           }`}
         >
           {PORTAL[user.role] || PORTAL.lecturer}
