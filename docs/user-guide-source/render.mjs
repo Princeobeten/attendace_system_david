@@ -1,17 +1,22 @@
 /**
  * Renders guide.html to ../FaceTrack-User-Guide.pdf using headless Chrome.
- * Requires playwright:  npm i -D playwright
+ * Uses the project's puppeteer-core dev dependency and your installed Chrome;
+ * set CHROME_PATH if Chrome is not in the default macOS location.
  */
-import { chromium } from "playwright";
+import puppeteer from "puppeteer-core";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const browser = await chromium.launch({ channel: "chrome" });
+const browser = await puppeteer.launch({
+  executablePath:
+    process.env.CHROME_PATH || "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  headless: true,
+});
 const page = await browser.newPage();
 
-await page.goto("file://" + path.join(here, "guide.html"), { waitUntil: "networkidle" });
-await page.emulateMedia({ media: "print" });
+await page.goto("file://" + path.join(here, "guide.html"), { waitUntil: "networkidle0" });
+await page.emulateMediaType("print");
 
 await page.pdf({
   path: path.join(here, "..", "FaceTrack-User-Guide.pdf"),
@@ -25,7 +30,7 @@ await page.pdf({
                 font-family:-apple-system,'Segoe UI',Arial,sans-serif;
                 padding:0 16mm;display:flex;justify-content:space-between;
                 border-top:1px solid #e2e8f0;padding-top:5px;margin-top:4mm;">
-      <span>FaceTrack &middot; User Guide v1.0</span>
+      <span>FaceTrack &middot; User Guide v2.0</span>
       <span>attendace-system-david.vercel.app</span>
       <span>Page <span class="pageNumber"></span> of <span class="totalPages"></span></span>
     </div>`,

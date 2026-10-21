@@ -1,15 +1,16 @@
 # User guide source
 
 `guide.html` is the source of `../FaceTrack-User-Guide.pdf`. The PNGs are real
-screenshots captured from the live deployment.
+screenshots of the application (1380×880 at 2× scale) running on the seeded
+demonstration data (`npm run seed -- --demo`).
 
 To edit the guide, change `guide.html`, then re-render it to PDF with headless
 Chrome:
 
 ```bash
-# from the project root, with Chrome installed
-npx playwright@1.62.1 install-deps 2>/dev/null   # not needed on macOS
+# from the project root, with Google Chrome installed
 node docs/user-guide-source/render.mjs
+# Chrome somewhere else?  CHROME_PATH=/path/to/chrome node docs/user-guide-source/render.mjs
 ```
 
 Or print it by hand: open `guide.html` in Chrome, press ⌘P, choose
